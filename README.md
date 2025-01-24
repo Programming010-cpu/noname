@@ -30,11 +30,11 @@
 - 卡牌音效
 
 ### 第五章：进阶开发 | 🟥 Hard
-- [7.1 AI设计](./chapter5-advanced/5.1-ai.md)
-- [7.2 联机适配](./chapter5-advanced/5.2-online.md)
-- [7.3 配音系统](./chapter5-advanced/5.3-audio.md)
-- [7.4 皮肤系统](./chapter5-advanced/5.4-skin.md)
-- [7.5 代码规范](./chapter5-advanced/5.5-code-standard.md)
+- [5.1 AI设计](./chapter5-advanced/5.1-ai.md)
+- [5.2 联机适配](./chapter5-advanced/5.2-online.md)
+- [5.3 配音系统](./chapter5-advanced/5.3-audio.md)
+- [5.4 皮肤系统](./chapter5-advanced/5.4-skin.md)
+- [5.5 代码规范](./chapter5-advanced/5.5-code-standard.md)
   
 ### 附录
 - [A. API参考](./appendix/api.md)
