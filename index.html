@@ -21,16 +21,35 @@
                 noData: '未找到结果',
                 depth: 5
             },
+            copyCode: {
+                buttonText: '复制',
+                errorText: '错误',
+                successText: '完成',
+            },
             pagination: {
                 previousText: '上一章节',
                 nextText: '下一章节',
                 crossChapter: true,
                 crossChapterText: true,
             },
+            count: {
+                countable: true,
+                position: 'top',
+                margin: '10px',
+                float: 'right',
+                fontsize: '0.9em',
+                color: 'rgb(90,90,90)',
+                language: 'chinese',
+                localization: {
+                    words: "",
+                    minute: ""
+                },
+                isExpected: true
+            },
             giscus: {
                 repo: "Antarctics/noname",
                 repoId: "R_kgDONu-Aug",
-                category: "General",
+                category: "Show and tell",
                 categoryId: "DIC_kwDONu-Aus4CmTjv",
                 mapping: "title",
                 reactionsEnabled: "1",
@@ -40,6 +59,9 @@
                 theme: 'light_high_contrast',
                 lang: "zh-CN"
             },
+            plugins: [
+                EditOnGithubPlugin.create("https://github.com/Antarctics/noname/tree/main", null, "🖊编辑此页")
+            ]
         }
 
     </script>
@@ -49,6 +71,8 @@
     <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/docsify-giscus@1.0.0/dist/giscus.css">
     <script src="https://unpkg.com/docsify-giscus@1.0.0/dist/docsify-giscus.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+    <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
 </body>
 
 </html>
