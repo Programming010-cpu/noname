@@ -16,5 +16,5 @@
 - - [5.4 皮肤系统](./chapter5-advanced/5.4-skin.md)
 - - [5.5 代码规范](./chapter5-advanced/5.5-code-standard.md)
 - 附录
-- - [A. API参考](./appendix/api-reference.md)
+- - [A. API参考](./appendix/api.md)
 - - [B. 常见问题](./appendix/faq.md)
