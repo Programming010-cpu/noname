@@ -41,10 +41,15 @@
                 color: 'rgb(90,90,90)',
                 language: 'chinese',
                 localization: {
-                    words: "个字",
+                    words: "个子",
                     minute: "分钟"
                 },
                 isExpected: true
+            },
+            progress: {
+                position: "top",
+                color: "var(--theme-color,#42b983)",
+                height: "3px",
             },
             giscus: {
                 repo: "Antarctics/noname",
@@ -59,6 +64,9 @@
                 theme: 'light_high_contrast',
                 lang: "zh-CN"
             },
+            plugins: [
+                EditOnGithubPlugin.create("https://github.com/Antarctics/noname/tree/main/", null, "🖊编辑此页")
+            ]
         }
 
     </script>
@@ -68,7 +76,11 @@
     <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/docsify-giscus@1.0.0/dist/giscus.css">
     <script src="https://unpkg.com/docsify-giscus@1.0.0/dist/docsify-giscus.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
     <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-progress@latest/dist/progress.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+
 </body>
 
 </html>
