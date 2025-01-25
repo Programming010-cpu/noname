@@ -394,18 +394,104 @@ player.changeHujia(num, type, limit)
 ### 1.6 选择与交互
 ```javascript
 // 选择目标
-player.chooseTarget(options)     // 选择目标
-player.chooseTargets(options)    // 选择多个目标
-player.chooseBool(options)       // 是/否选择
+/**
+ * 创建选择目标事件。
+ * 
+ * @description
+ * 该方法支持多种参数类型，用于配置选择目标的行为：
+ * - `number` 类型参数：指定选择目标的数量范围（最小和最大值相同）。
+ * - `select` 类型参数：指定选择目标的配置。
+ * - `dialog` 类型参数：指定关联的对话框，并禁用提示。
+ * - `boolean` 类型参数：指定是否强制选择（`forced`）。
+ * - `function` 类型参数：
+ *   - 第一个 `function` 参数：指定目标过滤逻辑。
+ *   - 第二个 `function` 参数：指定 AI 逻辑。
+ * - `string` 类型参数：指定提示信息。
+ * 
+ * @description
+ * 默认行为：
+ * - 如果没有指定 `filterTarget`，则使用默认的目标过滤逻辑（`lib.filter.all`）。
+ * - 如果没有指定 `selectTarget`，则默认为 `[1, 1]`。
+ * - 如果没有指定 `ai`，则使用默认的 AI 逻辑（`get.attitude2`）。
+ * 
+ */
+
+player.chooseTarget()
+player.chooseBool()       // 是/否选择
 
 // 选择牌
-player.chooseCard(options)       // 选择手牌
-player.chooseToRespond(options)  // 选择打出牌
-player.chooseCardTarget(options) // 选择牌和目标
+player.chooseCard()       // 选择手牌
+/**
+ * 创建一个选择响应卡牌的事件。
+ * 
+ * @description
+ * 支持的参数类型：
+ * - `number` 或 `select` 类型参数：指定选择卡牌的数量或配置。
+ * - `boolean` 类型参数：指定是否强制选择（`forced`）。
+ * - `position` 类型参数：指定卡牌的位置。
+ * - `function` 类型参数：
+ *   - 如果未指定 `filterCard`，则作为卡牌过滤逻辑。
+ *   - 如果已指定 `filterCard`，则作为 AI 逻辑。
+ * - `object` 类型参数：指定卡牌过滤条件。
+ * - `nosource` 参数：指定是否无来源玩家。
+ * - `string` 类型参数：指定提示信息。
+ * 
+ * @description
+ * 默认行为：
+ * - 如果没有指定 `filterCard`，则使用默认的卡牌过滤逻辑（`lib.filter.all`）。
+ * - 如果没有指定 `selectCard`，则默认为 `[1, 1]`。
+ * - 如果没有指定 `source` 且未设置 `nosource`，则默认来源玩家为当前事件的玩家。
+ * - 如果没有指定 `ai`，则使用默认的 AI 逻辑（`get.unuseful2`）。
+ * - 如果没有指定 `ai2`，则使用默认的 AI 逻辑（始终选择第一个选项）。
+ * - 如果没有指定 `prompt`，则自动生成提示信息。
+ * - 默认卡牌位置为 `"hs"`。
+ */
+player.chooseToRespond()
+player.chooseToUse() // 选择去使用
+/**
+ * 创建一个选择卡牌和目标事件。
+ * 
+ * @param {object} choose - 配置对象，用于指定选择卡牌和目标的行为。
+ * 
+ * @description
+ * 配置对象支持的属性：
+ * - `filterCard`：卡牌过滤逻辑，可以是函数或对象。如果未指定，则使用默认的卡牌过滤逻辑（`lib.filter.all`）。
+ * - `filterTarget`：目标过滤逻辑，可以是函数或对象。如果未指定，则使用默认的目标过滤逻辑（`lib.filter.all`）。
+ * - `selectCard`：选择卡牌的数量。如果未指定，则默认为 `1`。
+ * - `selectTarget`：选择目标的数量。如果未指定，则默认为 `1`。
+ * - `ai1`：卡牌选择的 AI 逻辑。如果未指定，则使用默认逻辑（`get.unuseful2`）。
+ * - `ai2`：目标选择的 AI 逻辑。如果未指定，则使用默认逻辑（`get.attitude2`）。
+ * 
+ */
+player.chooseCardTarget(choose)
 
 // 选择按钮
-player.chooseButton(options)     // 选择按钮
-player.chooseControl(options)    // 选择选项
+/**
+ * 创建并配置一个选择按钮事件。
+ * 
+ * @description
+ * 该方法支持多种参数类型，用于配置选择按钮的行为：
+ * - `boolean` 类型参数：
+ *   - 第一个 `boolean` 参数：指定是否强制选择（`forced`）。
+ *   - 第二个 `boolean` 参数：指定是否为复杂选择（`complexSelect`）。
+ * - `dialog` 类型参数：指定关联的对话框，并自动关闭对话框。
+ * - `select` 类型参数：指定选择按钮的配置。
+ * - `number` 类型参数：指定选择按钮的范围（最小和最大值相同）。
+ * - `function` 类型参数：
+ *   - 第一个 `function` 参数：指定 AI 逻辑。
+ *   - 第二个 `function` 参数：指定按钮过滤逻辑。
+ * - `array` 类型参数：指定用于创建对话框的配置。
+ * 
+ * @description
+ * 默认行为：
+ * - 如果没有指定 `forced`，则默认为 `false`。
+ * - 如果没有指定 `filterButton`，则使用默认的按钮过滤逻辑。
+ * - 如果没有指定 `selectButton`，则默认为 `[1, 1]`。
+ * - 如果没有指定 `ai`，则使用默认的 AI 逻辑（始终选择第一个选项）。
+ * - 如果没有指定 `complexSelect`，则默认为 `true`。
+ */
+player.chooseButton()
+player.chooseControl()    // 选择选项
 ```
 
 ### 1.7 动画效果
