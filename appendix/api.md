@@ -42,7 +42,6 @@ player.addSkill(skill, checkConflict, nobroadcast, addToSkills)
 /**
  * 添加临时技能到玩家的技能列表中。
  * 
- * @overload
  * @param {string|string[]} skill - 要添加的临时技能，可以是一个技能字符串或技能字符串数组。
  * @param {SkillTrigger|SAAType<Signal>} [expire] - 技能的过期条件，可以是触发器对象或触发器名称（字符串或数组）。
  * @param {boolean} [checkConflict] - 是否在添加技能后检查技能冲突。默认为true。
@@ -150,6 +149,21 @@ player.gainPlayerCard()
  * 在特定游戏模式下（如 "stone" 和 "deck"），会调整牌堆配置。
  */
 player.draw()
+/**
+ * 将指定的卡牌添加到扩展区中，需要自行添加gaintag
+ * 
+ * @param {string|string[]} arg - 可以是以下类型：
+ *   - "player"：指定玩家作为来源。
+ *   - "cards"：指定一组卡牌。
+ *   - "card"：指定单张卡牌。
+ *   - "log"：是否记录日志。
+ *   - "fromStorage"：是否从存储中添加。
+ *   - "fromRenku"：是否从Renku中添加，并标记为从存储中添加。
+ *   - "bySelf"：是否由自己操作。
+ *   - "string"：指定动画类型。
+ *   - "boolean"：指定是否延迟执行。
+ */
+player.addToExpansion()
 
 // 失去牌
 /**
@@ -184,19 +198,19 @@ player.lose()
  */
 player.discard()
 /**
- * 让玩家选择弃牌。
+ * 将卡牌添加到弃牌区域。
  * 
  * @description
  * 该方法支持多种参数类型：
- * - `number` 类型参数：指定选择牌的数量范围。
- * - `select` 类型参数：指定选择牌的配置。
- * - `dialog` 类型参数：指定对话框配置。
- * - `boolean` 类型参数：指定是否强制选择。
- * - `position` 类型参数：指定牌的位置。
- * - `function` 类型参数：指定 AI 逻辑或牌过滤逻辑。
- * - `object` 类型参数：指定牌过滤条件。
- * - `string` 类型参数：指定提示信息或特殊选项（如 "chooseonly"）。
- * 
+ * - `player` 类型参数：指定目标玩家。
+ * - `cards` 类型参数：指定要添加的卡牌列表。
+ * - `card` 类型参数：指定要添加的单个卡牌。
+ * - `log` 参数：是否记录日志。
+ * - `fromStorage` 参数：是否从存储区域添加。
+ * - `fromRenku` 参数：是否从 Renku 区域添加。
+ * - `bySelf` 参数：是否由玩家自己添加。
+ * - `string` 类型参数：指定动画类型。
+ * - `boolean` 类型参数：指定是否延迟执行。
  */
 player.chooseToDiscard()
 
@@ -278,6 +292,24 @@ player.getCards(arg1, arg2)
  * @param {string} [position] - 卡牌的位置类型。
  */
 player.hasCard(name, position)
+/**
+ * 统计具有指定标签的扩展区卡牌数量。
+ * 
+ * @param {string} tag - 要匹配的标签。
+ */
+player.countExpansions(tag)
+/**
+ * 获取具有指定标签的扩展区卡牌。
+ * 
+ * @param {string} tag - 要匹配的标签。
+ */
+player.getExpansions(tag)
+/**
+ * 检查是否存在具有指定标签的扩展区卡牌。
+ * 
+ * @param {string} tag - 要匹配的标签。
+ */
+player.hasExpansions(tag)
 ```
 
 ### 1.5 伤害与回复
