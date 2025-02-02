@@ -670,7 +670,7 @@ ui.create.dialog(title,content,options)
  * 对话框内容类型定义
  * @property {string} vcard - 虚拟卡牌（数据格式：[]Card数组）
  * @property {string} card - 卡牌列表（数据格式：[]Card数组）
- * @property {string} character - 角色信息（数据格式：角色名称）
+ * @property {string} character - 角色信息（数据格式：[]角色名称）
  * @property {string} player - 玩家列表（数据格式：[]对象数组）
  * @property {string} textbutton - 文本按钮（数据格式：[link, text]）
  * @property {string} tdnodes - 表格按钮（数据格式：[]文本数组）
@@ -682,9 +682,11 @@ ui.create.dialog(title,content,options)
  * 对话框实例方法
  * @method open() - 打开对话框
  * @method close() - 强制关闭对话框
- * @method add(content) - 动态添加内容（参数格式同构造函数）
+ * @method add(content) - 添加内容
+ * @method setCaption(text) - 设置标题
+ * @method addSmall(content) - 添加缩小内容
  * @method addText(text, center) - 添加文本段落（center: 是否居中）
- * @method addNewRow(buttons) - 添加横向按钮行（按钮配置数组）
+ * @method addNewRow({item,ratio}) - 添加横向按钮行
  * @property {boolean} supportsPagination - 分页支持开关（默认false）
  * @property {Map} paginationMap - 分页控制器映射表（需开启分页）
  * @property {boolean} static - 静态模式开关（禁用关闭）
