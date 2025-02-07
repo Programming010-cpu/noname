@@ -19,3 +19,4 @@
   - [A. API参考](./appendix/api.md)
   - [B. 常见问题](./appendix/faq.md)
   - [C. 共享手牌技能示例](./appendix/share-skill.md)
+  - [D. 充能条技能示例](./appendix/enery-skill.md)
