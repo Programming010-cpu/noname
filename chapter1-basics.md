@@ -16,17 +16,41 @@
 ```
 extension/
   └── 扩展名/
-      ├── extension.js     # 扩展主文件
-      ├── character.js     # 武将代码(可选)
+      ├── extension.js    # 扩展主文件
+      ├── info.json       # 扩展信息
+      ├── character.js    # 武将代码(可选)
       ├── card.js         # 卡牌代码(可选)
       ├── skill.js        # 技能代码(可选)
-      ├── image/          # 图片文件夹
+      ├── image/          # 图片文件夹(可选)
       │   ├── card/       # 卡牌图片
       │   └── character/  # 武将图片
-      └── audio/          # 音频文件夹
+      └── audio/          # 音频文件夹(可选)
           ├── die/        # 阵亡配音
           └── skill/      # 技能配音
 ```
+### 1.4 扩展安装方法
+
+##### 方法一
+ - 游戏内点击 选项->扩展->获取扩展->导入扩展->选择本扩展压缩包->确定
+
+#### 方法二
+ - 于游戏中创建名为 扩展名 的新扩展，将扩展目录内的文件覆盖进去！
+ - 确保其中文件如图所示：
+···
+extension/
+  └── 扩展名/
+      ├── extension.js    # 扩展主文件
+      ├── info.json       # 扩展信息
+      ├── character.js    # 武将代码(可选)
+      ├── card.js         # 卡牌代码(可选)
+      ├── skill.js        # 技能代码(可选)
+      ├── image/          # 图片文件夹(可选)
+      │   ├── card/       # 卡牌图片
+      │   └── character/  # 武将图片
+      └── audio/          # 音频文件夹(可选)
+          ├── die/        # 阵亡配音
+          └── skill/      # 技能配音
+···
 
 ## 2. JavaScript基础
 
@@ -256,6 +280,12 @@ game.import("extension", function(){
     };
 });
 ```
+一个标准的扩展信息文件(info.json)结构如下:
+```json
+{"name":"扩展名","author":"作者名","diskURL":"","forumURL":"","version":"1.0"}
+```
+
+二者皆为必须！保存为压缩包后即可导入游戏。
 
 ### 4.2 主要配置说明
 
@@ -303,7 +333,7 @@ content: function(){
 <summary>参考答案 | 🟩 Easy</summary>
 
 ```javascript
-content: async function(){
+content: async function (event, trigger, player){
     // 摸两张牌
     await player.draw(2);
     

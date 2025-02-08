@@ -16,6 +16,20 @@ translate: {
     "id": "武将名称",
 }
 ```
+在新版的无名杀系统下，同时也支持使用对象来创建新角色！
+参考格式如下：
+```javascript
+// 下述方式仅供参考，本教程以数组形式为主，如需使用对象形式，请访问 noname\library\element\character.js
+character: {
+    id: {
+            sex: "male",
+            group: "qun",
+            hp: 3,
+            skills: ["skill1", "skill2"],
+            doubleGroup: ["wei", "qun"],
+        },
+},
+```
 
 ### 1.1 参数说明
 

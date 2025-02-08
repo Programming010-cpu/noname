@@ -75,7 +75,7 @@ card: {
 
 ### 3.1 基础效果
 ```javascript
-content: async function(){
+content: async function (event, trigger, player){
     // 造成伤害
     await target.damage();
     
@@ -93,7 +93,7 @@ content: async function(){
 ### 3.2 复杂效果
 ```javascript
 "complex_card": {
-    content: async function(){
+    content: async function (event, trigger, player){
         // 选择效果
         let choice = await player.chooseControl('选项1', '选项2')
             .set('prompt', '请选择一个效果')
@@ -120,7 +120,7 @@ content: async function(){
 ### 4.1 使用动画
 ```javascript
 "animation_card": {
-    content: async function(){
+    content: async function (event, trigger, player){
         // 使用动画
         player.$throw(card);
         await game.delay(0.5);
@@ -138,7 +138,7 @@ content: async function(){
 ### 4.2 特殊动画
 ```javascript
 "special_animation": {
-    content: async function(){
+    content: async function (event, trigger, player){
         // 判定动画
         let result = await player.judge();
         
@@ -186,7 +186,7 @@ content: async function(){
         // 使用时触发
         player.storage.link_count++;
     },
-    content: async function(){
+    content: async function (event, trigger, player){
         // 根据使用次数改变效果
         let count = player.storage.link_count;
         await target.damage(count);
@@ -242,7 +242,7 @@ card: {
             return target != player;   // 不能对自己使用
         },
         selectTarget: 1,              // 选择一个目标
-        content: async function(){
+        content: async function (event, trigger, player){
             // 播放使用动画
             player.$throw(cards);
             game.delay(0.5);
