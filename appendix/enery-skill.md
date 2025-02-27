@@ -22,7 +22,7 @@
 
 想要实现技能效果：```当你受到伤害后，获得5点怒气。你无法通过除此以外的效果获得怒气。```
 
-那就创建一个技能，技能效果为受伤时触发``` source: "damageEnd" ```
+那就创建一个技能，技能效果为受伤时触发``` player: "damageEnd" ```
 
 初始化```player.zmld```，然后在效果中使用```game.changeNp()```来获取能量即可！
 
@@ -118,7 +118,7 @@ player.zmld.Image: 标记显示下，采用图片展示能量。
 *    - 完全匹配事件名称时强制跳过
 *    - 示例：无条件跳过'gameStart'和技能'wusheng'事件
 *      player.zmld.Skip.push(['gameStart',"wusheng"])
-*   可用事件： gameStart、phaseBeginStart、useCardBegin、damageBegin、gainBegin、damageBegin
+*   可用事件： gameStart、phaseBeginStart、useCardBegin、damageBegin、gainBegin
 * 
 * 示例：
 * init(player){

@@ -114,8 +114,16 @@ character: {
 // 在扩展precontent中添加
 lib.group.push('my_group'); // 添加势力
 lib.translate.my_group = '自定义'; // 势力翻译
-lib.translate.my_groupColor="#FFFF00", // 文字颜色
+lib.translate.my_groupColor="#FFFF00", // 文字颜色（疑似失效）
 lib.groupnature.my_group = 'metal'; // 描边颜色
+
+/* 推荐方法
+* id: 势力ID
+* short: 势力名称，单字
+* name: 势力全名，使用 get.translation(id2)可以获取，不填默认为short
+* config: 势力配置，采用对象格式，支持color,image
+*/
+game.addGroup(id,short,name,config)
 
 // 标准势力的描边颜色对应
 // 神: shen     - 金色
@@ -130,7 +138,26 @@ lib.groupnature.my_group = 'metal'; // 描边颜色
 "my_character": ["male", "my_group", 4/4, ["my_skill"], []], // 使用自定义势力的武将
 ```
 
-## 4. 注意事项
+## 4. 角色前缀
+```javascript
+translates = {
+    sheXXX: "蛇年XXX",
+    sheXXX_prefix: "蛇年" // 蛇年作为前缀，角色名为 XXX ，可参考 界XX、神XX、手杀XXX等
+};
+
+// 修改前缀显示样式
+// precontent中填写，支持color,nature,showName,getSpan
+lib.namePrefix.set("蛇年",{showName: "🐍"})
+// 或者
+lib.namePrefix.set("蛇年",{getSpan: () => {
+    const span = document.createElement("span");
+    span.style.fontFamily= "NonameSuits";
+    span.textContent= "🐍";
+    return span.outerHTML
+    }})
+```
+
+## 5. 注意事项
 
 1. **角色ID命名规范**
    - 建议使用前缀区分不同扩展，如 `ex_xxx`
