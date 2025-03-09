@@ -1,4 +1,4 @@
-# 附录D：充能条技能示例
+# 附录C：充能条技能示例
 
 ## 1. 效果展示
 - 描述完善
@@ -43,7 +43,7 @@ nuqi: {
             Np: 2, // 充能起始值
         }
     },
-    content: function () {
+    content () {
         "step 0"
         game.changeNp(5) // 获得五点充能，获取历史显示为“因【怒气】：+5”，可以自定义原因
         "step 1"
@@ -291,10 +291,10 @@ lib.skill._zmld_np = {
 							<div style="font-size:0.7em; white-space:nowrap; color:${lib.config.menu_style == "wood" ? "888" : "#aaa"}">用于《综漫乱斗》扩展</div>
 							</div>
 						`,
-		markcount: function (storage, player) {
+		markcount (storage, player) {
 			return player.zmld.Np;
 		},
-		content: function (storage, player) {
+		content (storage, player) {
 			return game.NpContent();
 		},
 		...{ ..._status.event.player?.zmld.Image ? { markimage: player.zmld.Image } : {} },
@@ -371,7 +371,7 @@ lib.skill._zmld_np = {
 			player.appendChild(bar);
 		}, player);
 	},
-	content: function () {
+	content () {
 		'step 0'
 		event.style = lib.config?.extension_综漫乱斗_zmld_np || 1
 		if (event.triggername == 'gameStart') {
