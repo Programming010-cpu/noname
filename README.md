@@ -12,7 +12,7 @@
 ### [第一章：基础知识 | 🟩 Easy](basic.md)
 - 开发环境准备
 - JavaScript基础
-- 
+
 ### [第二章：扩展结构 | 🟩 Easy](structure.md)
 - 无名杀扩展结构
 - 无名杀代码风格
