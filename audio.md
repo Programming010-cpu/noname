@@ -48,24 +48,17 @@ skill: {
 
 ## 3. 死亡配音
 
-### 3.1 基础设置
 ```javascript
 character: {
-    "my_general": ["male", "shu", 4, ["my_skill"], [
-        "die:ext:扩展名/audio/die/my_general.mp3"
-    ]],
-}
-```
-
-### 3.2 多配音设置
-```javascript
-// 在扩展中设置
-character.dieAudio = {
-    my_general: [
-        "ext:扩展名/audio/die/my_general1.mp3",
-        "ext:扩展名/audio/die/my_general2.mp3"
-    ]
-};
+    id: {
+        sex: "male",
+        group: "qun",
+        hp: 3,
+        skills: ["skill1", "skill2"],
+        doubleGroup: ["wei", "qun"],
+        dieAudios: ["ext:扩展名/audio/die/my_general1.mp3","ext:扩展名/audio/die/my_general2.mp3"]
+    },
+},
 ```
 
 ## 4. 配音台词
@@ -91,23 +84,7 @@ translate: {
 }
 ```
 
-## 5. 音频文件要求
-
-### 5.1 文件格式
-- 支持格式：mp3, ogg
-- 推荐格式：mp3
-
-### 5.2 音质要求
-- 采样率：44.1kHz
-- 比特率：96-128kbps
-- 声道：单声道或双声道
-
-### 5.3 文件大小
-- 技能配音：建议<50KB
-- 死亡配音：建议<100KB
-- 皮肤配音：建议<80KB
-
-## 6. 目录结构
+## 5. 推荐目录结构
 ```
 extension/
   └── 扩展名/
@@ -122,12 +99,12 @@ extension/
                   └── skin_audio.mp3
 ```
 
-## 7. 进阶技巧
+## 6. 进阶技巧
 
-### 7.1 条件配音
+### 6.1 条件配音
 ```javascript
 "my_skill": {
-    audio: function(player){
+    audio(player){
         // 根据条件返回不同的配音设置
         if(player.hp <= 2) return "ext:扩展名:2";
         return true;
@@ -135,22 +112,16 @@ extension/
 }
 ```
 
-### 7.2 动态配音
+### 6.2 动态配音
 ```javascript
 "my_skill": {
     audio: "ext:扩展名:2",
-    content: function(){
+    content(){
         // 手动播放配音
         game.playAudio('..', 'extension', '扩展名', 'my_skill' + (_status.event.num || 1));
     }
 }
 ```
-
-## 8. 注意事项
-
-1. **文件命名**
-   - 避免特殊字符
-   - 保持命名一致性
 
 ## 练习
 
@@ -176,7 +147,7 @@ skill: {
             machao: "ext:我的扩展/audio/machao/skill:2"  // 马超专属配音
         },
         
-        content: function(){
+        content(){
             // 技能内容
         }
     }
@@ -205,58 +176,6 @@ extension/
           └── machao/
               ├── skill1.mp3     // 马超专属配音1
               └── skill2.mp3     // 马超专属配音2
-```
-</details>
-
-2. 设置死亡配音：
-   - 添加基础死亡配音
-   - 设置死亡台词
-   - 添加多个配音文件
-
-<details>
-<summary>参考答案 | 🟩 Easy</summary>
-
-```javascript
-// 在扩展中添加死亡配音
-character: {
-    character: {
-        "my_general": ["male", "shu", 4, ["my_skill"], [
-            "des:武将描述",
-            "ext:我的扩展/image/my_general.jpg",
-            "die:ext:我的扩展/audio/die/my_general.mp3"
-        ]],
-    },
-    translate: {
-        "my_general": "武将名",
-        "#ext:我的扩展/audio/die/my_general:die": "死亡台词"
-    }
-},
-
-// 添加多个死亡配音
-precontent: function(){
-    // 定义多个死亡配音
-    character.dieAudio = {
-        my_general: [
-            "ext:我的扩展/audio/die/my_general1.mp3",
-            "ext:我的扩展/audio/die/my_general2.mp3",
-            "ext:我的扩展/audio/die/my_general3.mp3"
-        ]
-    };
-    
-    // 添加对应台词
-    lib.translate["#ext:我的扩展/audio/die/my_general1"] = "死亡台词1";
-    lib.translate["#ext:我的扩展/audio/die/my_general2"] = "死亡台词2";
-    lib.translate["#ext:我的扩展/audio/die/my_general3"] = "死亡台词3";
-}
-
-// 目录结构
-extension/
-  └── 我的扩展/
-      └── audio/
-          └── die/
-              ├── my_general1.mp3  // 死亡配音1
-              ├── my_general2.mp3  // 死亡配音2
-              └── my_general3.mp3  // 死亡配音3
 ```
 </details>
 

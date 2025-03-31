@@ -1,10 +1,10 @@
-# 3.3 技能效果
+# 4.3 技能效果
 
 ## 1. 基础效果
 
 ### 1.1 摸牌与弃牌
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 摸牌
     await player.draw(2);                    // 摸两张牌
     await player.drawTo(5);                  // 摸至五张牌
@@ -17,7 +17,7 @@ content: async function (event, trigger, player){
 
 ### 1.2 体力操作
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 回复体力
     await player.recover();                  // 回复1点体力
     await player.recover(2);                 // 回复2点体力
@@ -36,7 +36,7 @@ content: async function (event, trigger, player){
 
 ### 1.3 获得与给予
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 获得牌
     await player.gain(trigger.cards, 'gain2');   // 获得牌并展示
     await player.gainPlayerCard(target, true);   // 获得目标角色的一张牌
@@ -51,7 +51,7 @@ content: async function (event, trigger, player){
 
 ### 2.1 选择角色
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 选择一名角色
     let result = await player.chooseTarget('请选择一名角色', true).forResult();
     if(result.bool){
@@ -71,7 +71,7 @@ content: async function (event, trigger, player){
 
 ### 2.2 选择牌
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 选择手牌
     let result = await player.chooseCard('h', '请选择一张手牌').forResult();
     if(result.bool){
@@ -88,7 +88,7 @@ content: async function (event, trigger, player){
 
 ### 2.3 选择选项
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 选择一个选项
     let result = await player.chooseControl('选项1', '选项2')
         .set('prompt', '请选择一个选项')
@@ -109,7 +109,7 @@ content: async function (event, trigger, player){
 
 ### 3.1 基础判定
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 进行判定
     let result = await player.judge();
     if(result.color == 'red'){
@@ -122,10 +122,10 @@ content: async function (event, trigger, player){
 
 ### 3.2 自定义判定
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     let result = await player.judge(card => {
         if(get.color(card) == 'red') return 1;
-        return -1;
+        return 0;
     });
     
     if(result.bool){
@@ -138,7 +138,7 @@ content: async function (event, trigger, player){
 
 ### 4.1 连续效果
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 选择目标并执行连续效果
     let targets = await player.chooseTarget(2, true, '请选择两名角色').forResult();
     if(targets.bool){
@@ -152,7 +152,7 @@ content: async function (event, trigger, player){
 
 ### 4.2 条件分支
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 根据条件执行不同效果
     if(player.hp <= 2){
         let choice = await player.chooseControl('摸牌', '回血').forResult()
@@ -172,7 +172,7 @@ content: async function (event, trigger, player){
 
 ### 5.1 技能获得与失去
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 获得技能
     player.addTempSkill('new_skill');  // 获得临时技能
     player.addSkill('permanent_skill');            // 获得永久技能
@@ -185,7 +185,7 @@ content: async function (event, trigger, player){
 
 ### 5.2 状态变化
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 翻面与横置
     await player.turnOver();                       // 翻面
     await player.link();                           // 横置
@@ -210,13 +210,13 @@ content: async function (event, trigger, player){
 "compound_skill": {
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         return target != player;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择一名角色
         let result = await player.chooseTarget('选择一名目标角色', true)
             .set('ai', target => -get.attitude(player, target))
@@ -226,7 +226,7 @@ content: async function (event, trigger, player){
             // 进行判定
             let judge = await event.target.judge(function(card){
                 if(get.color(card) == 'red') return 1;
-                return -1;
+                return 0;
             });
             // 根据判定结果执行效果
             if(result.bool){
@@ -282,10 +282,10 @@ content: async function (event, trigger, player){
 "state_skill": {
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return !player.hasSkill('state_skill_effect');
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择状态
         let choices = ['翻面并获得技能', '横置并跳过阶段', '废除装备栏并摸牌'];
         let choice = await player.chooseControl(choices)
@@ -324,7 +324,7 @@ content: async function (event, trigger, player){
                 content: '获得技能效果'
             },
             mod: {
-                maxHandcard: function(player, num){
+                maxHandcard(player, num){
                     return num + 2;
                 }
             }
@@ -345,12 +345,12 @@ content: async function (event, trigger, player){
 ```javascript
 "choice_skill": {
     enable: "phaseUse",
-    filter: function(event, player){
+    filter(event, player){
         if(player.storage.choice_skill_used) return false;
         if(player.hp < 2 && !player.countCards('h')) return false;
         return true;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 准备选项
         let choices = [];
         if(player.isDamaged()) choices.push('回复体力');
@@ -403,7 +403,7 @@ content: async function (event, trigger, player){
         clear: {
             trigger: {player: 'phaseEnd'},
             forced: true,
-            content: function(){
+            content(){
                 delete player.storage.choice_skill_used;
                 player.unmarkSkill('choice_skill_used');
             }

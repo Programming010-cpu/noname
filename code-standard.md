@@ -40,7 +40,7 @@ game.import('extension', function(){
 ### 2.2 变量命名
 ```javascript
 "skill_name": {
-    content: function(){
+    content(){
         // 常量使用全大写
         const MAX_CARDS = 5;
         
@@ -68,12 +68,12 @@ game.import('extension', function(){
     trigger: {
         player: "phaseBegin"    // 对齐冒号
     },
-    filter: function(event, player){
+    filter(event, player){
         // 运算符前后加空格
         return player.hp <= 2 && 
                player.countCards('h') > 0;
     },
-    content: function(){
+    content(){
         // 括号内部不加空格
         if(player.isDamaged()){
             player.recover();
@@ -86,7 +86,7 @@ game.import('extension', function(){
 ```javascript
 // 长语句换行
 "line_skill": {
-    content: function(){
+    content(){
         let result = game.filterPlayer(function(current){
             return current.hp < 2 && 
                    current.countCards('h') > 0 && 
@@ -113,7 +113,7 @@ game.import('extension', function(){
  * @param {Object} player - 技能拥有者
  * @return {Boolean} 是否满足条件
  */
-filter: function(event, player){
+filter(event, player){
     // 检查体力值
     if(player.hp < 2) return false;
     
@@ -124,7 +124,7 @@ filter: function(event, player){
 },
 
 // 技能效果
-content: function(){
+content(){
     /* 多行注释
      * 1. 首先摸牌
      * 2. 然后可能失去体力
@@ -184,8 +184,8 @@ game.import('extension', function(){
         author: 'Author',
         
         // 核心内容
-        content: function(){},
-        precontent: function(){},
+        content(){},
+        precontent(){},
         
         // 扩展内容
         character: {},
@@ -230,20 +230,20 @@ respondSha:true,
     audio: "ext:扩展名/audio/skill:2",
     enable: ["chooseToUse", "chooseToRespond"],
     position: "he",
-    filterCard: function(card){
+    filterCard(card){
         return get.color(card) == 'red';
     },
     viewAs: {name: 'sha'},
-    viewAsFilter: function(player){
+    viewAsFilter(player){
         return player.countCards('he', {color: 'red'}) > 0;
     },
     prompt: "将一张红色牌当【杀】使用或打出",
-    check: function(card){
+    check(card){
         return 4 - get.value(card);
     },
     ai: {
         respondSha: true,
-        skillTagFilter: function(player){
+        skillTagFilter(player){
             return player.countCards('he', {color: 'red'}) > 0;
         },
         order: 4,

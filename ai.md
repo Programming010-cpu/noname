@@ -1,4 +1,4 @@
-# 5.1 AI设计
+# 6.1 AI设计
 
 ## 1. AI系统概述
 
@@ -26,7 +26,7 @@ skill: {
                 * [A,B]：基础值 × 系数A + B
                 * [A,B,C,D]：对你的影响：基础值 × 系数A + B | 对使用者的影响：基础值 × 系数C + D 
                 */
-                target: function(card, player, target){
+                target(card, player, target){
                     if(get.tag(card, 'damage')) return 1.5;  // 其他AI倾向于对持有者使用伤害牌
                 }
                 /*
@@ -36,7 +36,7 @@ skill: {
                 * [A,B]：基础值 × 系数A + B
                 * [A,B,C,D]：对你的影响：基础值 × 系数A + B | 对被使用者的影响：基础值 × 系数C + D 
                 */
-                player: function (card, player, target) {
+                player (card, player, target) {
                     if (get.tag(card, 'damage')) return [1,1];  // 你倾向于使用伤害牌
                 }
             }
@@ -49,7 +49,7 @@ skill: {
 ```javascript
 ai: {
     // 价值判断
-    value: function(card, player){
+    value(card, player){
         if(card.name == 'tao' && player.hp <= 2) return 8;  // 濒死状态桃价值高
         if(card.name == 'shan' && player.hp == 1) return 7;  // 濒死状态闪价值高
         return get.value(card);  // 默认价值
@@ -61,7 +61,7 @@ ai: {
 ```javascript
 ai: {
     // 技能使用优先级(1-10)
-    order: function(item, player){
+    order(item, player){
         if(player.hp < 2) return 10;  // 濒死优先使用
         if(player.hasSkill('skill_name')) return 8;  // 配合其他技能
         return 4; // 默认优先级
@@ -69,11 +69,11 @@ ai: {
     
     // 发动技能的收益评估
     result: { // 二者选一个即可
-        player: function(player){ // 对自身的收益，正数使用，负数取消
+        player(player){ // 对自身的收益，正数使用，负数取消
             if(player.hp < 2) return 2;  // 濒死收益加倍
             return 1;
         },
-        target: function(player, target){ // 对目标的收益，正数选友方，负数选敌方
+        target(player, target){ // 对目标的收益，正数选友方，负数选敌方
             if(target.hp == 1) return -2;  // 目标濒死收益加倍
             return -1; 
         }
@@ -95,10 +95,10 @@ ai: {
 ```javascript
 "ai_skill": {
     enable: "phaseUse",
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    check: function(event, player){ // 正数发动，负数取消
+    check(event, player){ // 为True发动，为False取消
         // 基础判断
         if(player.hp <= 2) return 0;  // 生命危险不发动
         
@@ -110,16 +110,16 @@ ai: {
         
         // 收益判断
         if(player.countCards('h') >= 4) return 1;  // 手牌充足可发动
-        return -1;  // 默认不发动
+        return 0;  // 默认不发动
     },
     ai: {
         order: 7,  // 发动优先级
         result: {
-            player: function(player){
+            player(player){
                 if(player.hp <= 2) return -1;  // 生命危险收益为负
                 return 1;  // 默认正收益
             },
-            target: function(player, target){
+            target(player, target){
                 return get.damageEffect(target, player, player) > 0 ? -1 : 0;  // 伤害收益
             }
         }
@@ -131,13 +131,13 @@ ai: {
 ```javascript
 "target_skill": {
     enable: "phaseUse",
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         return target != player;
     },
     ai: {
         // 目标价值判断
         result: {
-            target: function(player, target){
+            target(player, target){
                 // 基础态度
                 var att = get.attitude(player, target);
                 if(att > 0) return 0;  // 不选择友方
@@ -168,7 +168,7 @@ ai: {
         useful: [4, 1],
         
         // 装备评估
-        equipValue: function(card, player){
+        equipValue(card, player){
             if(card.name == 'bagua') return 5;  // 八卦阵价值
             return 3;  // 默认装备价值
         }
@@ -185,14 +185,14 @@ ai: {
     usable: 1,
     ai: {
         // 发动优先级
-        order: function(item, player){
+        order(item, player){
             if(player.hp <= 2) return 10;  // 生命危险优先发动
             return 4;  // 默认优先级
         },
         
         // 发动条件
         result: {
-            player: function(player){
+            player(player){
                 // 收益评估
                 var benefit = 0;
                 if(player.hp <= 2) benefit += 2;  // 生命危险收益高
@@ -208,10 +208,10 @@ ai: {
 ```javascript
 "trigger_skill": {
     trigger: {player: 'damageEnd'},
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    check: function(event, player){
+    check(event, player){
         // 触发收益判断
         if(player.hp <= 2) return true;  // 生命危险必定发动
         if(player.countCards('h') >= 4) return false;  // 手牌多不发动
@@ -220,7 +220,7 @@ ai: {
     ai: {
         // 收益效果
         effect: {
-            target: function(card, player, target){
+            target(card, player, target){
                 if(get.tag(card, 'damage')){
                     if(player.hasSkillTag('jueqing')) return [1,-2];
                     if(target.hp <= 1) return [1,0,0,-2];
@@ -239,64 +239,62 @@ ai: {
 ```javascript
 ai: {
     // 技能标签的生效限制条件
-    skillTagFilter: function(player, tag, target) {
+    skillTagFilter(player, tag, target) {
         if (player == target && tag == "viewHandcard") return false;
     }, // 可看见除自己外所有人的手牌
 
     /*
     * 实际效果标签
     */
-    unequip: true, // 无视防具
-    unequip2: true, // 自身防具无效
-    nohujia: true, // 无视护甲
-    norespond: true, // 无法响应牌
-    playernowuxie: true, // 不响应无懈
-    neg: true, // 负面技，强制发动
+    combo: "XXX", // 组合技，持有XXX时收益增加
+    directHit_ai: true, // 可强中
+    filterDamage: true, // 伤害减免
+    fireAttack: true, // 可造成火属性伤害
+    freeShan: true, // 无消耗的【闪】
+    guanxing: true, // 可观星
     halfneg: true, // 半负面技
+    ignoreSkill: true // 忽略技能检测
+    jiuOther: true, // 可响应【酒】
+    left_hand: true, // 逆时针计算距离
+    maixie_defend: true, // 卖血防御技
+    maixie_hp: true, // 优先回血
+    maixie: true, // 卖血技
+    neg: true, // 负面技，强制发动
+    noautowuxie: true, // 无法自动无懈
     noCompareSource: true, // 无法发起拼点
     noCompareTarget: true, // 无法作为拼点目标
-    noautowuxie: true, // 无法自动无懈
-    nomingzhi: true, // 无法明置
-    left_hand: true, // 逆时针计算距离
-    right_hand: true, // 顺时针计算距离
-    undist: true, // 自身不计入距离
-    nofire: true, // 不受火焰伤害
-    nothunder: true, // 不受雷电伤害
     nodamage: true, // 不受伤害
-    usedu: true, // 使用毒有收益
+    nodiscard: true, // 弃置牌无收益
     nodu: true, // 不受毒影响
+    noe: true, // 失去装备时正收益
+    nofire: true, // 不受火焰伤害
+    nogain: true, // 获得牌无收益
+    noh: true, // 没有手牌时正收益
+    nohujia: true, // 无视护甲
+    noLink: true, // 不能被横置
+    nolose: true, // 失去牌无收益
+    nomingzhi: true, // 无法明置
+    norespond: true, // 无法响应牌
+    noShan: true, // 不用【闪】
+    nothunder: true, // 不受雷电伤害
     notrick: true, // 免疫锦囊
     notricksource: true, // 免疫锦囊牌造成的伤害
-    filterDamage: true, // 伤害减免
-    noLink: true, // 不能被横置
     noTurnover: true, // 不能被翻面
-    viewHandcard: true, // 可看见其他角色的手牌
-
-    /*
-    * AI决策标签，无实际效果
-    */
-    respondShan: true, // 可响应【闪】
-    respondSha: true, // 可响应【杀】
-    respondTao: true, // 可响应【桃】
-    save: true, // 濒死状态可救人
+    playernowuxie: true, // 不响应无懈
     rejudge: true, // 可修改判定
-    jiuOther: true, // 可响应【酒】
-    maixie: true, // 卖血技
-    maixie_hp: true, // 优先回血
-    maixie_defend: true, // 卖血防御技
-    noe: true, // 失去装备时正收益
-    noh: true, // 没有手牌时正收益
+    respondSha: true, // 可响应【杀】
+    respondShan: true, // 可响应【闪】
+    respondTao: true, // 可响应【桃】
     reverseEquip: true, // 反转装备优先级
-    combo: "XXX", // 组合技，持有XXX时收益增加
+    right_hand: true, // 顺时针计算距离
+    save: true, // 濒死状态可救人
+    undist: true, // 自身不计入距离
+    unequip_ai: true, // 可无视护甲
+    unequip: true, // 无视防具
+    unequip2: true, // 自身防具无效
+    usedu: true, // 使用毒有收益
     useShan: true, // 【闪】能用则用
-    noShan: true, // 不用【闪】
-    freeShan: true, // 无消耗的【闪】
-    nogain: true, // 获得牌无收益
-    nolose: true, // 失去牌无收益
-    nodiscard: true, // 弃置牌无收益
-    guanxing: true, // 可观星
-    fireAttack: true, // 可造成火属性伤害
-    ignoreSkill: true // 忽略技能检测
+    viewHandcard: true, // 可看见其他角色的手牌
 }
 ```
 
@@ -314,25 +312,25 @@ ai: {
 "basic_ai": {
     enable: "phaseUse",
     usable: 1,
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         return target != player;
     },
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         await target.damage();
     },
     ai: {
         // 基础判断
-        order: function(item, player){
+        order(item, player){
             if(player.hp <= 2) return 0; // 生命危险时不发动
             return 4;
         },
         
         // 目标选择
         result: {
-            target: function(player, target){
+            target(player, target){
                 // 基础态度判断
                 let attitude = get.attitude(player, target);
                 if(attitude > 0) return 0; // 不选择友方
@@ -347,7 +345,7 @@ ai: {
         
         // 使用策略
         effect: {
-            target: function(card, player, target){
+            target(card, player, target){
                 if(get.tag(card, 'damage')){
                     if(player.hasSkillTag('jueqing')) return [1,-2];
                     if(target.hp == 1) return [1,0,0,-2];
@@ -375,10 +373,10 @@ ai: {
 "skill_ai": {
     trigger: {player: 'phaseBegin'},
     direct: true,
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 1;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 发动条件判断
         let check = false;
         let enemies = game.filterPlayer(function(current){
@@ -413,7 +411,7 @@ ai: {
                     if(target.hasSkillTag('threaten')) return 8; // 威胁目标优先
                     return 6;
                 }
-                return -1;
+                return 0;
                 })
                 .forResult();
         }
@@ -444,7 +442,7 @@ ai: {
 ```javascript
 "complex_ai": {
     // 缓存计算结果
-    init: function(player){
+    init(player){
         player.storage.aiCache = {
             situation: null,
             lastUpdate: 0
@@ -452,7 +450,7 @@ ai: {
     },
     
     // 场景评估
-    getSituation: function(player){
+    getSituation(player){
         let now = get.utc();
         if(!player.storage.aiCache.situation || 
            now - player.storage.aiCache.lastUpdate > 1000){
@@ -478,10 +476,10 @@ ai: {
     
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 动态策略选择
         let situation = lib.skill.complex_ai.getSituation(player);
         let strategy;
@@ -537,7 +535,7 @@ ai: {
     },
     ai: {
         // 动态优先级
-        order: function(item, player){
+        order(item, player){
             let situation = lib.skill.complex_ai.getSituation(player);
             if(situation > 5) return 8;
             if(situation < -5) return 4;
@@ -546,7 +544,7 @@ ai: {
         
         // 动态收益
         result: {
-            player: function(player){
+            player(player){
                 let situation = lib.skill.complex_ai.getSituation(player);
                 if(situation > 5) return 2;
                 if(situation < -5) return 0.5;
@@ -555,7 +553,7 @@ ai: {
         },
         
         // 威胁度
-        threaten: function(player, target){
+        threaten(player, target){
             let situation = lib.skill.complex_ai.getSituation(player);
             if(situation > 5) return 2;
             return 1;

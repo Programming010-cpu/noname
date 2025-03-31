@@ -1,4 +1,4 @@
-# 第四章：卡牌开发
+# 第五章：卡牌开发
 
 ## 1. 卡牌系统概述
 
@@ -17,7 +17,7 @@ card: {
         type: "basic",       // 牌的类型(basic/trick/delay/equip)
         enable: true,        // 是否可以使用
         filterTarget: true,  // 目标选择条件
-        content: function(){ // 卡牌效果
+        content(){ // 卡牌效果
             target.damage();
         }
     },
@@ -61,12 +61,12 @@ card: {
 "delay_card": {
     type: "delay",
     enable: true,
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         return !target.hasJudge('my_delay');  // 判断目标是否已有同名判定牌
     },
-    judge: function(card){    // 判定函数
+    judge(card){    // 判定函数
         if(get.color(card) == 'red') return 1;
-        return -1;
+        return 0;
     }
 }
 ```
@@ -75,7 +75,7 @@ card: {
 
 ### 3.1 基础效果
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 造成伤害
     await target.damage();
     
@@ -93,7 +93,7 @@ content: async function (event, trigger, player){
 ### 3.2 复杂效果
 ```javascript
 "complex_card": {
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择效果
         let choice = await player.chooseControl('选项1', '选项2')
             .set('prompt', '请选择一个效果')
@@ -120,7 +120,7 @@ content: async function (event, trigger, player){
 ### 4.1 使用动画
 ```javascript
 "animation_card": {
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 使用动画
         player.$throw(card);
         await game.delay(0.5);
@@ -138,7 +138,7 @@ content: async function (event, trigger, player){
 ### 4.2 特殊动画
 ```javascript
 "special_animation": {
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 判定动画
         let result = await player.judge();
         
@@ -165,7 +165,7 @@ content: async function (event, trigger, player){
 ### 5.2 条件音效
 ```javascript
 "condition_audio": {
-    audio: function(player){
+    audio(player){
         // 根据条件返回不同音效
         if(player.hp < 3) return "ext:扩展名:2";
         return true;
@@ -178,15 +178,15 @@ content: async function (event, trigger, player){
 ### 6.1 联动效果
 ```javascript
 "link_card": {
-    init: function(player){
+    init(player){
         // 初始化
         player.storage.link_count = 0;
     },
-    onuse: function(result, player){
+    onuse(result, player){
         // 使用时触发
         player.storage.link_count++;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 根据使用次数改变效果
         let count = player.storage.link_count;
         await target.damage(count);
@@ -198,15 +198,15 @@ content: async function (event, trigger, player){
 ```javascript
 "special_rule": {
     mod: {
-        targetEnabled: function(card, player, target){
+        targetEnabled(card, player, target){
             // 目标限制
             if(target.hp > player.hp) return false;
         },
-        cardUsable: function(card, player, num){
+        cardUsable(card, player, num){
             // 使用次数修改
             if(player.hp < 3) return num + 1;
         },
-        ignoredHandcard: function(card, player){
+        ignoredHandcard(card, player){
             // 手牌规则修改
             if(card.name == 'my_card') return true;
         }
@@ -238,11 +238,11 @@ card: {
         type: "basic",                // 基本牌
         enable: true,                 // 可以使用
         usable: 1,                    // 每回合限一次
-        filterTarget: function(card, player, target){
+        filterTarget(card, player, target){
             return target != player;   // 不能对自己使用
         },
         selectTarget: 1,              // 选择一个目标
-        content: async function (event, trigger, player){
+        async content(event, trigger, player){
             // 播放使用动画
             player.$throw(cards);
             game.delay(0.5);
@@ -284,10 +284,10 @@ card: {
             attackFrom: -1,          // 攻击距离+1
         },
         skills: ["my_equip_skill"],  // 装备技能
-        onLose: function(){          // 失去装备时
+        onLose(){          // 失去装备时
             player.chooseToDiscard("hes", true);
         },
-        onGain: function(){          // 获得装备时
+        onGain(){          // 获得装备时
             player.draw();
         },
         ai: {
@@ -303,10 +303,10 @@ skill: {
     "my_equip_skill": {
         trigger: {source: 'damageBegin1'},
         forced: true,
-        filter: function(event, player){
+        filter(event, player){
             return event.card && event.card.name == 'sha';
         },
-        content: function(){
+        content(){
             trigger.num++;            // 伤害+1
         },
         ai: {
@@ -336,21 +336,21 @@ card: {
     "my_delay": {
         type: "delay",               // 延时锦囊
         enable: true,                // 可以使用
-        filterTarget: function(card, player, target){
+        filterTarget(card, player, target){
             return !target.hasJudge('my_delay'); // 判断是否已有同名判定牌
         },
-        judge: function(card){       // 判定函数
+        judge(card){       // 判定函数
             if(get.color(card) == 'red') return 1;
-            return -1;
+            return 0;
         },
-        effect: function(){          // 判定效果
+        effect(){          // 判定效果
             if(result.bool){
                 player.draw(2);      // 判定成功摸牌
             } else {
                 player.damage('thunder'); // 判定失败受到伤害
             }
         },
-        cancel: function(){          // 判定牌被取消时
+        cancel(){          // 判定牌被取消时
             player.draw();           // 摸一张牌
         },
         ai: {
@@ -360,7 +360,7 @@ card: {
                 value: [5,1],
             },
             result: {
-                target: function(player, target){
+                target(player, target){
                     return -1.5;     // 对目标负面效果
                 }
             }

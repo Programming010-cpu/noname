@@ -1,4 +1,4 @@
-# 3.2 触发时机
+# 4.2 触发时机
 
 ## 1. 触发时机概述
 
@@ -13,8 +13,8 @@
 
 ```javascript
     // 带有 ？ 即为特殊模式触发事件。
-    // 事件细分
-   "${EventWithTrigger}Before"                 // 事件发生前的
+    // 事件细分，可细分事件必须携带此类后缀
+   "${EventWithTrigger}Before"                 // 事件发生前
    "${EventWithTrigger}Begin"                  // 事件开始时
    "${EventWithTrigger}End"                    // 事件结束时
    "${EventWithTrigger}After"                  // 事件发生后
@@ -28,7 +28,6 @@
    "[skillname]ContentAfter"                 // 技能执行后
    "[skillname]ContentBefore"                // 技能执行前
    "[skillname]_cost"                        // 技能执行cost(选择)时
-   "_save"                                   // 濒死状态求桃时
    "addFellowAuto"                           // 自动添加随从时？
    "addJudge"                                // 添加判定牌时
    "addToExpansion"                          // 置于武将牌上时
@@ -153,6 +152,7 @@
    "yingbianEffect"                          // 应变效果时
    "yingbianZhuzhan"                         // 应变助战时
    "zhuque_clear"                            // 朱雀扇执行时
+
     // 不可细分事件
    "addShownCardsAfter"                      // 添加展示卡牌之后
    "addToExpansionBefore"                    // 置于武将牌上之前
@@ -350,7 +350,7 @@ trigger: {
         "shaUnhirt",                                // 杀未造成伤害时(此处hirt为源码拼写错误，实际为hurt，调用时请使用hirt)
         "wuguRemained",                             // 五谷有多余展示牌时
         "useCardToPlayer",                          // 使用牌指定目标时
-        "useCardToPlayered"                         //使用牌指定目标后
+        "useCardToPlayered"                         // 使用牌指定目标后
     ],
     // 成为目标
     target: [
@@ -436,7 +436,7 @@ trigger:{
     trigger: {player:"phaseBegin"},
     priority: 5,                          // 设置优先级(默认为1)
     forced: true,
-    content: function(){}
+    content(){}
 }
 ```
 
@@ -444,7 +444,7 @@ trigger:{
 
 ### 7.1 基本判断
 ```javascript
-filter: function(event, player){
+filter(event, player){
     // 血量条件
     return player.hp < 3;
     
@@ -461,7 +461,7 @@ filter: function(event, player){
 
 ### 7.2 复杂条件
 ```javascript
-filter: function(event, player){
+filter(event, player){
     // 多重条件
     if(player.hp < 3 && player.countCards("h") > 0){
     return event.player.isAlive() && 
@@ -477,7 +477,7 @@ filter: function(event, player){
 ```javascript
 "order_skill": {
     trigger: {player:"phaseBegin"},
-    content: function(){
+    async content(event, trigger, player){
     // 打断后续触发
     trigger.cancel();
     
@@ -495,15 +495,15 @@ filter: function(event, player){
 "condition_skill": {
     trigger: {player:"phaseBegin"},
     direct: true,                          // 锁定技且不输出日志
-    check: function(event, player){
+    check(event, player){
     return player.hp < 3;                   // AI发动条件
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
     let target = await player.chooseTarget("对一名角色造成伤害，然后你失去一点体力").forResult();
     if (target.bool){
-    player.logSkill("condition_skill",target.targets[0])
-    await target.targets[0].damage()
-    await player.loseHp()
+        player.logSkill("condition_skill",target.targets[0])
+        await target.targets[0].damage()
+        await player.loseHp()
     }
     }
 }
@@ -527,23 +527,23 @@ filter: function(event, player){
     player: ["phaseBegin", "phaseEnd"]
     },
     // 触发条件
-    filter: function(event, player){
+    filter(event, player){
     if(event.name =="phaseBegin"){
     return player.countCards("h") < 3;                  // 回合开始时手牌少于3
     }
     return player.hp < 3;                   // 回合结束时体力值少于3
     },
     // 根据时机执行不同效果
-    content: async function (event, trigger, player){
-    if(trigger.name =="phaseBegin"){
-    // 回合开始时摸牌
-    await player.draw(2);
-    game.log(player,"触发了回合开始效果");
-    } else {
-    // 回合结束时回血
-    await player.recover();
-    game.log(player,"触发了回合结束效果");
-    }
+    async content(event, trigger, player){
+        if(event.triggername =="phaseBegin"){
+            // 回合开始时摸牌
+            await player.draw(2);
+            game.log(player,"触发了回合开始效果");
+        } else {
+            // 回合结束时回血
+            await player.recover();
+            game.log(player,"触发了回合结束效果");
+        }
     },
     ai: {
     threaten: 1.5
@@ -568,13 +568,13 @@ filter: function(event, player){
     global: "damageEnd"
     },
     // 触发条件
-    filter: function(event, player){
-    return event.player != player &&                    // 不是自己受伤
-     event.player.isAlive() &&                  // 目标存活
-     event.num > 0;                 // 伤害大于0
+    filter(event, player){
+        return event.player != player &&                    // 不是自己受伤
+        event.player.isAlive() &&                  // 目标存活
+        event.num > 0;                 // 伤害大于0
     },
     // 连锁效果
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
     // 记录伤害数值
     event.num = trigger.num;
     // 选择效果
@@ -584,31 +584,31 @@ filter: function(event, player){
     let result = await player.chooseControl(choices)
     .set("prompt","请选择一个效果")
     .set("ai", function(){
-    if(player.hp <= 2) return"回血";
-    if(player.countCards("h") < 2) return"摸牌";
-    return"弃牌造成伤害";
+        if(player.hp <= 2) return"回血";
+        if(player.countCards("h") < 2) return"摸牌";
+        return"弃牌造成伤害";
     })
     .forResult();
      // 执行效果
     switch(result.control){
-    case"摸牌":
-    await player.draw(event.num);
-    break;
-    case"回血":
-    await player.recover(event.num);
-    break;
-    case"弃牌造成伤害":
-    await player.chooseToDiscard(1, true);
-    let target = await player.chooseTarget("选择一名角色造成伤害").forResult();
-    if(target.bool){
-    await target.targets[0].damage();
-    }
-    break;
+        case"摸牌":
+            await player.draw(event.num);
+            break;
+        case"回血":
+            await player.recover(event.num);
+            break;
+        case"弃牌造成伤害":
+            await player.chooseToDiscard(1, true);
+            let target = await player.chooseTarget("选择一名角色造成伤害").forResult();
+            if(target.bool){
+                await target.targets[0].damage();
+            }
+            break;
     }
     },
     ai: {
-    threaten: 2,
-    expose: 0.2
+        threaten: 2,
+        expose: 0.2
     }
 }
 ```
@@ -633,33 +633,33 @@ filter: function(event, player){
     },
     forced: true,
     // 触发条件
-    filter: function(event, player){
+    filter(event, player){
     return event.card.name =="sha" &&                   // 目标是【杀】
      player.countCards("h") > 0;                    // 有手牌
     },
     // 特殊效果
-    content: async function (event, trigger, player){
-    // 取消原有事件
-    trigger.cancel();
-    game.log(player,"触发了优先级技能");
-    // 展示一张手牌
-    let card = await player.chooseCard("h", true,"请展示一张手牌").forResult();
-    if(card.bool){
-    await player.showCards(card.cards);
-    
-    // 根据花色执行效果
-    if(get.color(card.cards[0]) =="red"){
-    await player.draw();
-    game.log(player,"展示红色牌，摸一张牌");
-    } else {
-    await trigger.player.draw();
-    game.log(trigger.player,"展示黑色牌，使用者摸一张牌");
-    }
-    }
+    async content(event, trigger, player){
+        // 取消原有事件
+        trigger.cancel();
+        game.log(player,"触发了优先级技能");
+        // 展示一张手牌
+        let card = await player.chooseCard("h", true,"请展示一张手牌").forResult();
+        if(card.bool){
+            await player.showCards(card.cards);
+            
+            // 根据花色执行效果
+            if(get.color(card.cards[0]) =="red"){
+                await player.draw();
+                game.log(player,"展示红色牌，摸一张牌");
+            } else {
+                await trigger.player.draw();
+                game.log(trigger.player,"展示黑色牌，使用者摸一张牌");
+            }
+        }
     },
     ai: {
     effect: {
-    target: function(card, player, target){
+    target(card, player, target){
     if(card.name =="sha") return 0.5;
     }
     }

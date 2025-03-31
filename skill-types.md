@@ -1,4 +1,4 @@
-# 3.7 技能类型
+# 4.7 技能类型
 
 ## 1. 技能分类
 
@@ -28,71 +28,11 @@
 - 追思技: 获得已阵亡角色技能的技能
 - 议事技: 需要进行投票的技能
 
-## 2. 技能定义格式
-
-基本技能结构:
-<details>
-<summary>展开示例</summary>
-
-```javascript
-"skill_name": {
-    // 基础属性
-    filter: function(event, player){}, // 发动条件
-    content: async function (event, trigger, player){}, // 技能效果
-    
-    // 可选属性
-    audio: 2,                   // 技能配音
-    trigger: {},                // 触发时机(被动)
-    enable: "phaseUse",         // 使用时机(主动)
-    usable: 1,                  // 使用次数限制(回合)
-	getIndex: [],               // 技能的总发动次数=数组长度，第X次发动的目标=数组的第X个元素
-    round: 1,                   // 使用次数限制(每轮)
-    forced: true,               // 是否强制发动(启用后默认locked为true)
-    locked: true,               // 是否锁定(视为锁定技)
-    frequent: true,             // 是否自动发动
-    init: {},                   // 初始化函数
-    charlotte: true,            // 是否为锁定技
-    vanish: true,               // 一次性技能
-    derivation: xxx,            // 派生技（在技能下面的显示对应技能的描述）
-    frequent: true,             // 是否自动发动
-    popup: false,               // 是否记录日志
-    nopop: true,                // 是否显示技能描述
-    skillAnimation: true,       // 是否播放动画
-	animationColor: "gray",     // 动画文字颜色
-    sourceSkill: "XXX",         // 源技能，若存在，则当前技能实际id为"XXX_skill_name"
-    group: ['subskill1'],       // 关联子技能
-    logTarget: "target",        // 日志中显示的目标
-    mark: "auto",               // 是否显示标记
-    equipSkill: true,           // 是否为装备技能
-    prompt: "XXX",              // 发动技能提示
-    
-    filterCard: {},             // 是否需要筛选卡牌
-    position: {},               // 指定卡牌位置
-    filterTarget: (),           // 是否需要筛选目标
-    selectTarget: (),           // 需要选择的目标数
-    viewAs: {},                 // 视为使用卡牌
-    viewAsFilter: {},           // 视为使用条件
-    onuse: {},                  // 视为后执行的效果
-    onremove: {},               // 失去技能后执行的效果
-    intro: {},                  // 标记内容
-    check: {},                  // AI是否发动技能(被动技)
-    mod: {},                    // 属性修改(视为锁定技)
-    ai: {},                     // AI策略
-                                // ....更多选项请查看源码
-},
-translate: {
-    "skill_name": "技能名",
-    "skill_name_info": "技能描述"
-}
-```
-
-</details>
-
-## 3. 技能示例
+## 2. 技能示例
 
 技能示例仅供参考,具体实现请参考源码！
 
-### 3.1 基础技能类型示例
+### 2.1 基础技能类型示例
 
 #### 触发技示例
 <details>
@@ -104,10 +44,10 @@ translate: {
     audio: 2,
     trigger: {player: 'damageEnd'},
     forced: true,
-    filter: function(event, player){
+    filter(event, player){
         return event.cards && event.cards.length > 0;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         await player.gain(trigger.cards);
         player.$gain2(trigger.cards);
     } // 锁定技,当你受到伤害后,你获得造成伤害的牌
@@ -125,12 +65,12 @@ translate: {
 "wusheng": {
     audio: 2,
     enable: ["chooseToUse", "chooseToRespond"],
-    filterCard: function(card, player){
+    filterCard(card, player){
         return get.color(card) == 'red';
     },
     position: 'he',
     viewAs: {name: 'sha'},
-    viewAsFilter: function(player){
+    viewAsFilter(player){
         return player.countCards('he', {color: 'red'}) > 0;
     },
     prompt: "将一张红色牌当杀使用或打出",
@@ -139,7 +79,7 @@ translate: {
 
 </details>
 
-### 3.2 特殊技能类型示例
+### 2.2 特殊技能类型示例
 
 #### 锁定技示例
 <details>
@@ -149,7 +89,7 @@ translate: {
 // 马超【马术】
 "mashu": {
     mod: {
-        globalFrom: function(from, to, distance){
+        globalFrom(from, to, distance){
             return distance - 1;
         }
     } // 锁定技,你计算与其他角色的距离-1
@@ -286,12 +226,12 @@ mbweitong: {
     trigger: {player: "phaseZhunbeiBegin"}, // 准备阶段触发
     
     // 初始化标记
-    init: function(player){
+    init(player){
         player.storage.retishen = false;
     },
     
     // 触发条件
-    filter: function(event, player){
+    filter(event, player){
         if(player.storage.retishen) return false; // 已使用过则不能发动
         if(typeof player.storage.retishen2 == "number"){
             return player.hp < player.storage.retishen2; // 当前体力小于上回合体力
@@ -300,13 +240,13 @@ mbweitong: {
     },
     
     // AI判断
-    check: function(event, player){
+    check(event, player){
         if(player.hp <= 1) return true; // 濒死必发动
         return player.hp < player.storage.retishen2 - 1; // 体力差大于1时发动
     },
     
     // 技能效果
-    content: function(){
+    content(){
         player.awakenSkill("retishen"); // 标记技能已发动
         // 回复体力并摸牌
         player.recover(player.storage.retishen2 - player.hp);
@@ -316,7 +256,7 @@ mbweitong: {
     
     // 标记显示
     intro: {
-        mark: function(dialog, content, player){
+        mark(dialog, content, player){
             if(player.storage.retishen) return;
             if(typeof player.storage.retishen2 != "number"){
                 return "上回合体力：无";
@@ -337,7 +277,7 @@ mbweitong: {
     sourceSkill: "retishen", // 来源技能
     
     // 记录体力值
-    content: function(){
+    content(){
         player.storage.retishen2 = player.hp;
         // 同步给其他玩家
         game.broadcast(function(player){
@@ -349,7 +289,7 @@ mbweitong: {
     
     // 标记说明
     intro: {
-        content: function(storage, player){
+        content(storage, player){
             if(player.storage.retishen) return;
             return "上回合体力：" + storage;
         },
@@ -435,7 +375,7 @@ mbweitong: {
     locked: false,
     
     // 使命完成条件
-    filter: function(event, player){
+    filter(event, player){
         if(!player.storage.xingqi || !player.storage.xingqi.length) return false;
         // 检查各类型牌是否达到要求
         var map = {basic: 0, trick: 0, equip: 0};
@@ -455,7 +395,7 @@ mbweitong: {
     animationColor: "water", // 动画颜色
     
     // 使命完成效果
-    content: function(){
+    content(){
         "step 0"
         player.awakenSkill("mibei"); // 标记完成
         game.log(player, "成功完成使命");
@@ -487,10 +427,10 @@ mbweitong: {
             trigger: {player: "phaseZhunbeiBegin"},
             silent: true,
             lastDo: true,
-            filter: function(event, player){
+            filter(event, player){
                 return !player.getStorage("xingqi").length;
             },
-            content: function(){
+            content(){
                 player.addTempSkill("mibei_mark");
             },
         },
@@ -500,12 +440,12 @@ mbweitong: {
         fail: {
             audio: "mibei2.mp3",
             trigger: {player: "phaseJieshuBegin"},
-            filter: function(event, player){
+            filter(event, player){
                 return !player.getStorage("xingqi").length && 
                        player.hasSkill("mibei_mark");
             },
             forced: true,
-            content: function(){
+            content(){
                 game.log(player, "使命失败");
                 player.awakenSkill("mibei");
                 player.loseMaxHp();
@@ -620,7 +560,7 @@ mbweitong: {
 
 </details>
 
-### 3.3 新版技能类型示例
+### 2.3 新版技能类型示例
 
 #### 护甲技示例
 <details>
@@ -632,7 +572,7 @@ mbweitong: {
     audio: 4,
     trigger: {player: "phaseJieshuBegin"}, // 结束阶段触发
     direct: true, // 不触发询问
-    content: function(){
+    content(){
         "step 0"
         // 选择目标
         player.chooseTarget(
@@ -688,7 +628,7 @@ mbweitong: {
 // 鹤翼的全局效果
 "heyi_distance": {
     mod: {
-        globalTo: function(from, to, distance){
+        globalTo(from, to, distance){
             // 检查是否有拥有鹤翼的角色与目标在同一直线上
             if(game.hasPlayer(function(current){
                 return current.hasSkill("heyi") && current.inline(to);
@@ -714,7 +654,7 @@ mbweitong: {
     chargeSkill: 3, // 蓄力技,最大蓄力值为3
     
     // 发动条件
-    filter: function(event, player){
+    filter(event, player){
         if(event.type == "wuxie" || !player.countCharge()) return false;
         var marked = player.hasSkill("sblongdan_mark", null, null, false);
         // 遍历所有基本牌
@@ -739,7 +679,7 @@ mbweitong: {
     
     // 选择按钮
     chooseButton: {
-        dialog: function(event, player){
+        dialog(event, player){
             var list = [];
             var marked = player.hasSkill("sblongdan_mark", null, null, false);
             // 构建可选牌列表
@@ -762,7 +702,7 @@ mbweitong: {
         },
         
         // AI选择逻辑
-        check: function(button){
+        check(button){
             if(_status.event.getParent().type != "phase") return 1;
             var player = _status.event.player,
                 card = {name: button.link[2], nature: button.link[3]};
@@ -773,7 +713,7 @@ mbweitong: {
         },
         
         // 选择后的处理
-        backup: function(links, player){
+        backup(links, player){
             return {
                 viewAs: {
                     name: links[0][2],
@@ -782,10 +722,10 @@ mbweitong: {
                 filterCard: lib.skill.sblongdan.getFilter(links[0][2], player),
                 position: "he",
                 popname: true,
-                check: function(card){
+                check(card){
                     return 6/Math.max(1, get.value(card));
                 },
-                precontent: function(){
+                precontent(){
                     player.removeCharge(); // 消耗蓄力值
                     player.addTempSkill("sblongdan_draw");
                 },
@@ -793,7 +733,7 @@ mbweitong: {
         },
         
         // 提示文本
-        prompt: function(links, player){
+        prompt(links, player){
             var marked = player.hasSkill("sblongdan_mark", null, null, false);
             var card = {
                 name: links[0][2],
@@ -807,7 +747,7 @@ mbweitong: {
     },
     
     // 隐藏卡牌检测
-    hiddenCard: function(player, name){
+    hiddenCard(player, name){
         if(get.type(name) != "basic" || !player.countCharge()) return false;
         var marked = player.hasSkill("sblongdan_mark", null, null, false);
         if(!marked && name != "sha" && name != "shan") return false;
@@ -818,13 +758,13 @@ mbweitong: {
     ai: {
         respondSha: true,
         respondShan: true,
-        skillTagFilter: function(player, tag){
+        skillTagFilter(player, tag){
             return lib.skill.sblongdan.hiddenCard(player, 
                 tag == "respondSha" ? "sha" : "shan");
         },
         order: 9,
         result: {
-            player: function(player){
+            player(player){
                 if(_status.event.dying) 
                     return get.attitude(player, _status.event.dying);
                 return 1;
@@ -833,7 +773,7 @@ mbweitong: {
     },
     
     // 获取过滤器
-    getFilter: function(name, player){
+    getFilter(name, player){
         if(!player.hasSkill("sblongdan_mark", null, null, false)){
             if(name == "sha") return {name: "shan"};
             if(name == "shan") return {name: "sha"};
@@ -846,7 +786,7 @@ mbweitong: {
     derivation: "sblongdan_shabi", // 衍生技能
     
     // 移除技能时的处理
-    onremove: function(player){
+    onremove(player){
         player.removeSkill("sblongdan_mark");
     },
     
@@ -860,10 +800,10 @@ mbweitong: {
             trigger: {player: ["useCardAfter"]},
             forced: true,
             popup: false,
-            filter: function(event, player){
+            filter(event, player){
                 return event.skill == "sblongdan_backup";
             },
-            content: function(){
+            content(){
                 player.draw();
             },
         },
@@ -875,11 +815,11 @@ mbweitong: {
                 player: "enterGame",
             },
             forced: true,
-            filter: function(event, player, name){
+            filter(event, player, name){
                 if(!player.countCharge(true)) return false;
                 return name != "phaseBefore" || game.phaseNumber == 0;
             },
-            content: function(){
+            content(){
                 player.addCharge();
             },
         },
@@ -900,14 +840,14 @@ mbweitong: {
     groupSkill: "wei", // 魏势力专属
     enable: "chooseToUse",
     usable: 2,
-    viewAsFilter: function(player){
+    viewAsFilter(player){
         return player.group == "wei" && player.hp > 0;
     },
     viewAs: {name: "juedou", isCard: true},
     filterCard: () => false,
     selectCard: -1,
     log: false,
-    precontent: function(){
+    precontent(){
         "step 0"
         player.logSkill("dbzhuifeng");
         player.loseHp();
@@ -922,11 +862,11 @@ mbweitong: {
         self: {
             trigger: {player: "damageBegin2"},
             forced: true,
-            filter: function(event, player){
+            filter(event, player){
                 var evt = event.getParent();
                 return evt.skill == "dbzhuifeng" && evt.player == player;
             },
-            content: function(){
+            content(){
                 trigger.cancel();
                 player.tempBanSkill("dbzhuifeng", {player: "phaseUseEnd"});
             }
@@ -938,7 +878,7 @@ mbweitong: {
 "dbchongjian": {
     audio: 2,
     groupSkill: "wu", // 吴势力专属
-    hiddenCard: function(player, name){
+    hiddenCard(player, name){
         if(player.group == "wu" && 
            (name == "sha" || name == "jiu") &&
            player.hasCard(function(card){
@@ -947,7 +887,7 @@ mbweitong: {
         return false;
     },
     enable: "chooseToUse",
-    filter: function(event, player){
+    filter(event, player){
         return player.group == "wu" &&
                player.hasCard(function(card){
                    return get.type(card) == "equip";
@@ -957,19 +897,19 @@ mbweitong: {
     },
     locked: false,
     mod: {
-        targetInRange: function(card){
+        targetInRange(card){
             if(card.storage && card.storage.dbchongjian) return true;
         }
     },
     chooseButton: {
-        dialog: function(){
+        dialog(){
             var list = [];
             list.push(["基本","","sha"]);
             for(var i of lib.inpile_nature) list.push(["基本","","sha",i]);
             list.push(["基本","","jiu"]);
             return ui.create.dialog("冲坚",[list,"vcard"]);
         },
-        filter: function(button, player){
+        filter(button, player){
             var evt = _status.event.getParent();
             return evt.filterCard({
                 name: button.link[2],
@@ -977,7 +917,7 @@ mbweitong: {
                 isCard: true
             }, player, evt);
         },
-        backup: function(links, player){
+        backup(links, player){
             return {
                 audio: "dbchongjian",
                 viewAs: {
@@ -988,12 +928,12 @@ mbweitong: {
                 filterCard: {type: "equip"},
                 position: "hes",
                 popname: true,
-                precontent: function(){
+                precontent(){
                     player.addTempSkill("dbchongjian_effect");
                 }
             };
         },
-        prompt: function(links){
+        prompt(links){
             return '将一张装备牌当做'+(links[0][3]?get.translation(links[0][3]):'')+
                    '【'+get.translation(links[0][2])+'】使用';
         }
@@ -1002,20 +942,20 @@ mbweitong: {
         effect: {
             charlotte: true,
             mod: {
-                targetInRange: function(card){
+                targetInRange(card){
                     if(card.storage && card.storage.dbchongjian) return true;
                 }
             },
             trigger: {source: "damageSource"},
             forced: true,
             logTarget: "player",
-            filter: function(event, player){
+            filter(event, player){
                 return event.parent.skill == "dbchongjian_backup" && 
                        event.card.name == "sha" && 
                        event.getParent().name == "sha" && 
                        event.player.countGainableCards(player, "e") > 0;
             },
-            content: function(){
+            content(){
                 player.gainPlayerCard(trigger.player, "e", true, trigger.num);
             }
         }
@@ -1035,7 +975,7 @@ mbweitong: {
     audio: 3,
     trigger: {global: "phaseUseBegin"},
     // 触发条件:目标角色在你的攻击范围内且未拥有全部整肃技能
-    filter: function(event, player){
+    filter(event, player){
         if(!["zhengsu_leijin", "zhengsu_bianzhen", "zhengsu_mingzhi"]
             .some(i => !event.player.hasSkill(i))) return false;
         return player.inRange(event.player);
@@ -1043,7 +983,7 @@ mbweitong: {
     round: 1, // 每轮限一次
     logAudio: () => 1,
     logTarget: "player",
-    content: function(){
+    content(){
         "step 0"
         // 选择整肃类型
         player.chooseButton([
@@ -1082,10 +1022,10 @@ mbweitong: {
             },
             // 音效处理
             logAudio(event, player, _3, data){
-                if(!player.storage[data]) return "houfeng3.mp3";
+                if(!player.storage[data]) return "houfeng2.mp3";
                 return "houfeng2.mp3";
             },
-            content: function(){
+            content(){
                 "step 0"
                 player.unmarkAuto("houfeng", event.indexedData);
                 // 整肃失败
@@ -1142,15 +1082,15 @@ mbweitong: {
     enable: "phaseUse",
     usable: 1,
     // 检查仁库是否有牌
-    filter: function(event, player){
+    filter(event, player){
         return _status.renku.length > 0;
     },
     // 选择仁库牌
     chooseButton: {
-        dialog: function(event, player){
+        dialog(event, player){
             return ui.create.dialog("病论", _status.renku);
         },
-        backup: function(links, player){
+        backup(links, player){
             var obj = lib.skill.binglun_backup;
             obj.card = links[0];
             return obj;
@@ -1164,7 +1104,7 @@ mbweitong: {
             selectCard: -1,
             filterTarget: true,
             delay: false,
-            content: function(){
+            content(){
                 "step 0"
                 // 将选中的仁库牌置入弃牌堆
                 var card = lib.skill.binglun_backup.card;
@@ -1197,7 +1137,7 @@ mbweitong: {
             popup: false,
             onremove: true,
             charlotte: true,
-            content: function(){
+            content(){
                 if(player.isDamaged()){
                     player.logSkill("binglun_recover");
                     player.recover(player.countMark("binglun_recover"));
@@ -1244,7 +1184,7 @@ mbweitong: {
     subSkill: {
         global: {
             // 移除全局技能的处理
-            onremove: function(){
+            onremove(){
                 game.removeGlobalSkill("lingce_global");
             }
         }
@@ -1266,12 +1206,12 @@ mbweitong: {
     logTarget: "target",
     logAudio: () => 1,
     // 触发条件:使用【杀】指定其他角色为目标
-    filter: function(event, player){
+    filter(event, player){
         return player != event.target && 
                event.card.name == "sha" && 
                event.target.isIn();
     },
-    content: function(){
+    content(){
         "step 0"
         var target = trigger.target;
         event.target = target;
@@ -1310,7 +1250,7 @@ mbweitong: {
         },
         true2: {
             audio: "sbtieji", 
-            logAudio: () => "sbtieji3.mp3"
+            logAudio: () => "sbtieji2.mp3"
         },
         false: {
             audio: "sbtieji",
@@ -1352,15 +1292,15 @@ mbweitong: {
     subSkill: {
         // 协力成功效果
         effect: {
-            audio: "sbxieji3.mp3",
+            audio: "sbxieji2.mp3",
             charlotte: true,
             trigger: {global: "phaseJieshuBegin"},
             direct: true,
             // 检查协力是否完成
-            filter: function(event, player){
+            filter(event, player){
                 return player.checkCooperationStatus(event.player, "sbxieji");
             },
-            content: function(){
+            content(){
                 "step 0"
                 game.log(player, "和", trigger.player, "的协力成功");
                 // 选择【杀】的目标
@@ -1391,12 +1331,12 @@ mbweitong: {
             trigger: {source: "damageSource"},
             forced: true,
             popup: false,
-            filter: function(event, player){
+            filter(event, player){
                 return event.card && event.card.storage && 
                        event.card.storage.sbxieji && 
                        event.getParent().type == "card";
             },
-            content: function(){
+            content(){
                 player.draw(trigger.num);
             }
         }
@@ -1416,7 +1356,7 @@ mbweitong: {
     audio: 4,
     trigger: {player: "phaseZhunbeiBegin"},
     // 获取议事目标
-    logTarget: function(event, player){
+    logTarget(event, player){
         return game.filterPlayer(i => i != player);
     },
     prompt: "是否发动【朝争】？",
@@ -1424,13 +1364,13 @@ mbweitong: {
     logAudio: index => (typeof index === "number" ? 
         "jsrgchaozheng"+index+".mp3" : 2),
     // 发起议事
-    content: function(){
+    content(){
         player.chooseToDebate(
             game.filterPlayer(i => i != player)
         ).set("callback", lib.skill.jsrgchaozheng.callback);
     },
     // 议事结果处理
-    callback: function(){
+    callback(){
         var result = event.debateResult;
         if(result.bool && result.opinion){
             var opinion = result.opinion,
@@ -1465,7 +1405,7 @@ mbweitong: {
 技能翻译包括:
 1. 技能名称
 2. 技能描述
-3. 技能标签
+2. 技能标签
 
 <details>
 <summary>展开示例</summary>
@@ -1501,12 +1441,12 @@ translate: {
     trigger: {player: 'phaseBegin'},
     
     // 发动条件：每回合限一次
-    filter: function(event, player){
+    filter(event, player){
         return !player.hasSkill('ex_trigger_used');
     },
     
     // 技能效果
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择效果
         let choice = await player.chooseControl('摸两张牌', '回复1点体力')
             .set('prompt', '请选择一个效果')
@@ -1547,7 +1487,7 @@ translate: {
     enable: ["chooseToUse", "chooseToRespond"],
     
     // 使用条件检查
-    filter: function(event, player){
+    filter(event, player){
         // 检查是否有可用牌
         if(!player.countCards('he')) return false;
         // 检查使用次数
@@ -1564,7 +1504,7 @@ translate: {
     
     // 选择按钮
     chooseButton: {
-        dialog: function(event, player){
+        dialog(event, player){
             var list = [];
             // 添加可选牌型
             if(!player.hasSkill('ex_viewas_tao'))
@@ -1575,7 +1515,7 @@ translate: {
         },
         
         // 检查按钮是否可选
-        filter: function(button, player){
+        filter(button, player){
             var evt = _status.event.getParent();
             return evt.filterCard({
                 name: button.link[2]
@@ -1583,10 +1523,10 @@ translate: {
         },
         
         // 选择后的处理
-        backup: function(links, player){
+        backup(links, player){
             return {
                 // 过滤可选牌
-                filterCard: function(card){
+                filterCard(card){
                     if(links[0][2] == 'tao')
                         return get.color(card) == 'red';
                     return get.color(card) == 'black';
@@ -1595,13 +1535,13 @@ translate: {
                 // 转化为目标牌
                 viewAs: {name: links[0][2]},
                 // 记录使用次数
-                onuse: function(result, player){
+                onuse(result, player){
                     player.addTempSkill('ex_viewas_'+links[0][2], 'phaseAfter');
                 }
             }
         },
         
-        prompt: function(links){
+        prompt(links){
             var color = links[0][2] == 'tao' ? '红色' : '黑色';
             return '将一张'+color+'牌当做'+get.translation(links[0][2])+'使用';
         }
@@ -1623,7 +1563,7 @@ translate: {
 </details>
 </details>
 
-3. 创建一个复合技能:
+2. 创建一个复合技能:
    - 锁定技，回合开始时获得一个标记
    - 出牌阶段限一次，可以移去一个标记令一名角色选择:
      1. 弃置一张牌，然后摸两张牌
@@ -1636,7 +1576,7 @@ translate: {
 ```javascript
 "ex_complex": {
     // 初始化标记
-    init: function(player){
+    init(player){
         if(!player.storage.ex_complex) player.storage.ex_complex = 0;
     },
     
@@ -1651,7 +1591,7 @@ translate: {
     // 获得标记
     trigger: {player: 'phaseBegin'},
     forced: true,
-    content: function(){
+    content(){
         player.addMark('ex_complex', 1);
     },
     
@@ -1663,10 +1603,10 @@ translate: {
         use: {
             enable: 'phaseUse',
             usable: 1,
-            filter: function(event, player){
+            filter(event, player){
                 return player.countMark('ex_complex') > 0;
             },
-            content: async function (event, trigger, player){
+            async content(event, trigger, player){
                 // 移去标记
                 player.removeMark('ex_complex', 1);
                 
@@ -1721,10 +1661,10 @@ translate: {
         damage: {
             trigger: {player: 'phaseEnd'},
             forced: true,
-            filter: function(event, player){
+            filter(event, player){
                 return player.countMark('ex_complex') > 2;
             },
-            content: function(){
+            content(){
                 player.clearMark('ex_complex');
                 player.damage();
             }
@@ -1737,10 +1677,10 @@ translate: {
                 content: '攻击范围+1，出牌阶段可以多使用一张【杀】'
             },
             mod: {
-                attackRange: function(player, num){
+                attackRange(player, num){
                     return num + 1;
                 },
-                cardUsable: function(card, player, num){
+                cardUsable(card, player, num){
                     if(card.name == 'sha') return num + 1;
                 }
             }

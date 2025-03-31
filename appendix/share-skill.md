@@ -1,4 +1,4 @@
-# 附录C：共享手牌技能示例
+# 附录B：共享手牌技能示例
 
 ## 1. 技能描述
 - 锁定技，拥有此技能的角色共享手牌，且手牌互相可见。当你处于弃牌阶段时，你无法弃置“共享”牌。
@@ -30,12 +30,12 @@
     direct: true,
     charlotte: true,
     intro: {
-        content: function () {
+        content () {
             return "当前共享手牌的角色：</br>" + _status.gongxiang.players
         }
     },
     mod: {
-        ignoredHandcard: function (card, player) {
+        ignoredHandcard (card, player) {
             return card.hasGaintag('共享')
         },
         cardDiscardable(card, player, name) {
@@ -59,7 +59,7 @@
             trigger: {
                 player: ['useCardBefore', 'respondBefore', "loseBegin", "addToExpansionBegin"]
             },
-            filter: function (event, player) {
+            filter (event, player) {
                 if (!event.cards || !event.cards.length) return false;
                 return event.cards.some(card =>
                     _status.gongxiang.cards.some(g =>

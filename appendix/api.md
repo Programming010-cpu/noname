@@ -683,11 +683,25 @@ game.createEvent(name)   // 创建事件
 event.trigger(name)      // 触发事件
 event.cancel()           // 取消事件
 event.finish()          // 结束事件
+event.getParent()       // 父级事件
 
 // 事件等待
 game.delay()            // 延迟
 game.delayx()           // 根据动画速度延迟
 ```
+## 4.2.各事件AI参数
+```javascript
+/**
+ * @description
+ * @param {Event} event - 当前事件的父级事件
+ * @param {Player} player - 当前玩家对象
+ * 
+ */
+chooseControl.ai(event, player)
+chooseToEnable.ai((event, player, list))
+chooseToDisable.ai((event, player, list))
+```
+
 
 ## 5. 游戏(Game)相关API
 
@@ -833,8 +847,8 @@ ui.create.dialog(title,content,options)
 
 /**
  * 对话框内容类型定义
- * @property {string} vcard - 虚拟卡牌（数据格式：[]Card数组）
- * @property {string} card - 卡牌列表（数据格式：[]Card数组）
+ * @property {string} vcard - 虚拟卡牌（数据格式：[suit, number, name, natrue]或Cards数组）
+ * @property {string} card - 实体卡牌（数据格式：[]Card数组）
  * @property {string} character - 角色信息（数据格式：[]角色名称）
  * @property {string} player - 玩家列表（数据格式：[]对象数组）
  * @property {string} textbutton - 文本按钮（数据格式：[link, text]）

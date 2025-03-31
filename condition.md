@@ -1,4 +1,4 @@
-# 3.5 技能条件
+# 4.5 技能条件
 
 ## 1. 条件判断概述
 
@@ -14,7 +14,7 @@
 ```javascript
 "condition_skill": {
     trigger: {player: 'phaseBegin'},
-    filter: function(event, player){
+    filter(event, player){
         // 基础条件
         return player.hp < 3;                    // 体力值小于3
         
@@ -34,7 +34,7 @@
 
 ### 2.2 复合条件
 ```javascript
-filter: function(event, player){
+filter(event, player){
     // 多个条件同时满足
     return player.hp < 3 && 
            player.countCards('h') > 0 &&
@@ -53,10 +53,10 @@ filter: function(event, player){
 ```javascript
 "check_skill": {
     enable: 'phaseUse',
-    check: function(event, player){
+    check(event, player){
         // 基础判断
         if(player.hp < 2) return 1;        // 推荐发动
-        if(player.hp > 3) return -1;       // 不推荐发动
+        if(player.hp > 3) return 0;       // 不推荐发动
         
         // 形势判断
         if(player.hasUnknown()) return 0;  // 存在未知情况
@@ -71,12 +71,12 @@ filter: function(event, player){
 ```javascript
 "choice_skill": {
     chooseButton: {
-        dialog: function(event, player){
+        dialog(event, player){
             return ui.create.dialog('选择一项', [
                 ['sha', 'tao'], 'vcard'
             ]);
         },
-        check: function(button){
+        check(button){
             // 按钮选择判断
             if(button.link[2] == 'sha'){
                 if(_status.event.player.hp < 2) return 0;
@@ -84,7 +84,7 @@ filter: function(event, player){
             }
             return 2; // 桃的优先度最高
         },
-        backup: function(links, player){
+        backup(links, player){
             // 选择结果处理
         }
     }
@@ -98,15 +98,15 @@ filter: function(event, player){
 "mod_skill": {
     mod: {
         // 使用条件
-        cardEnabled: function(card, player){
+        cardEnabled(card, player){
             if(player.hp < 2) return false;
         },
         // 目标条件
-        targetEnabled: function(card, player, target){
+        targetEnabled(card, player, target){
             if(target.hp < 2) return false;
         },
         // 数值条件
-        cardUsable: function(card, player, num){
+        cardUsable(card, player, num){
             if(card.name == 'sha') return num + 1;
         }
     }
@@ -118,14 +118,14 @@ filter: function(event, player){
 "complex_mod": {
     mod: {
         // 多重条件判断
-        cardEnabled: function(card, player){
+        cardEnabled(card, player){
             if(!player.countCards('h')) return false;
             if(player.hasSkill('some_skill')) return false;
             if(_status.currentPhase != player) return false;
             return true;
         },
         // 动态数值判断
-        maxHandcard: function(player, num){
+        maxHandcard(player, num){
             if(player.hp < 3) return num - 1;
             if(player.hasSkill('some_skill')) return num + 1;
             return num;
@@ -140,7 +140,7 @@ filter: function(event, player){
 ```javascript
 "timing_skill": {
     enable: 'phaseUse',
-    filter: function(event, player){
+    filter(event, player){
         // 判断当前时机
         if(_status.currentPhase != player) return false;
         if(event.parent.name == 'phaseUse') return true;
@@ -153,7 +153,7 @@ filter: function(event, player){
 ```javascript
 "state_skill": {
     trigger: {player: 'damageEnd'},
-    filter: function(event, player){
+    filter(event, player){
         // 判断角色状态
         if(player.isTurnedOver()) return false;
         if(player.isLinked()) return false;
@@ -169,7 +169,7 @@ filter: function(event, player){
 ```javascript
 "cache_skill": {
     trigger: {player: 'phaseBegin'},
-    filter: function(event, player){
+    filter(event, player){
         // 缓存复杂计算结果
         if(player.storage.cache_result === undefined){
             player.storage.cache_result = game.countPlayer(function(current){
@@ -178,7 +178,7 @@ filter: function(event, player){
         }
         return player.storage.cache_result > 0;
     },
-    content: function(){
+    content(){
         // 使用后清除缓存
         delete player.storage.cache_result;
     }
@@ -189,7 +189,7 @@ filter: function(event, player){
 ```javascript
 "dynamic_skill": {
     mod: {
-        cardEnabled: function(card, player){
+        cardEnabled(card, player){
             // 根据场上形势动态判断
             var enemies = game.countPlayer(function(current){
                 return get.attitude(player, current) < 0;
@@ -226,7 +226,7 @@ filter: function(event, player){
 ```javascript
 "multi_condition": {
     enable: "phaseUse",
-    filter: function(event, player){
+    filter(event, player){
         // 基础条件:体力值小于3且有手牌
         if(player.hp >= 3 || !player.countCards('h')) return false;
         
@@ -235,13 +235,13 @@ filter: function(event, player){
             return current.isDamaged();
         });
     },
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         // 目标条件
         return target.isDamaged() && // 目标已受伤
                target.countCards('h') < target.hp && // 手牌数小于体力值
                !target.hasSkill('multi_condition_effect'); // 没有临时效果
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 根据条件给予不同效果
         if(target.hp <= 2){
             await target.recover();
@@ -253,7 +253,7 @@ filter: function(event, player){
     ai: {
         order: 7,
         result: {
-            target: function(player, target){
+            target(player, target){
                 if(target.hp <= 2) return 2;
                 return 1;
             }
@@ -274,7 +274,7 @@ filter: function(event, player){
 ```javascript
 "dynamic_condition": {
     // 缓存机制
-    init: function(player){
+    init(player){
         player.storage.dynamic_condition = {
             situation: null,
             lastUpdate: 0
@@ -282,11 +282,7 @@ filter: function(event, player){
     },
     
     // 场势评估(自建函数)
-    getSituation: function(player){
-        let now = get.utc();
-        if(!player.storage.dynamic_condition.situation || 
-           now - player.storage.dynamic_condition.lastUpdate > 1000){
-            
+    getSituation(player){
             let situation = 0;
             // 计算我方状态
             situation += player.hp;
@@ -300,14 +296,11 @@ filter: function(event, player){
                 }
             });
             
-            player.storage.dynamic_condition.situation = situation;
-            player.storage.dynamic_condition.lastUpdate = now;
-        }
-        return player.storage.dynamic_condition.situation;
+        return situation
     },
     
     enable: "phaseUse",
-    filter: function(event, player){
+    filter(event, player){
         // 动态条件判断
         let situation = lib.skill.dynamic_condition.getSituation(player);
         
@@ -319,7 +312,7 @@ filter: function(event, player){
             return player.hp > 1;
         }
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         let situation = lib.skill.dynamic_condition.getSituation(player);
         
         if(situation > 0){
@@ -334,13 +327,13 @@ filter: function(event, player){
         }
     },
     ai: {
-        order: function(item, player){
+        order(item, player){
             let situation = lib.skill.dynamic_condition.getSituation(player);
             if(situation > 0) return 8;
             return 4;
         },
         result: {
-            player: function(player){
+            player(player){
                 let situation = lib.skill.dynamic_condition.getSituation(player);
                 if(situation > 0) return 1;
                 return 2;
@@ -362,7 +355,7 @@ filter: function(event, player){
 ```javascript
 "complex_mod": {
     // 初始化
-    init: function(player){
+    init(player){
         player.storage.complex_mod = {
             attackRange: 0,
             maxHandcard: 0,
@@ -371,7 +364,7 @@ filter: function(event, player){
     },
     
     // 更新数值(自建函数)
-    updateMod: function(player){
+    updateMod(player){
         let storage = player.storage.complex_mod;
         
         // 根据体力值修改攻击距离
@@ -390,37 +383,37 @@ filter: function(event, player){
     },
     forced: true,
     popup: false,
-    filter: function(event, player){
+    filter(event, player){
         return true;
     },
-    content: function(){
+    content(){
         lib.skill.complex_mod.updateMod(player);
     },
     
     // 数值修改
     mod: {
-        attackRange: function(player, num){
+        attackRange(player, num){
             return num + player.storage.complex_mod.attackRange;
         },
-        maxHandcard: function(player, num){
+        maxHandcard(player, num){
             return num + player.storage.complex_mod.maxHandcard;
         },
-        cardUsable: function(card, player, num){
+        cardUsable(card, player, num){
             if(card.name == 'sha'){
                 return num + player.storage.complex_mod.cardUsable;
             }
         },
-        globalTo: function(from, to, distance){
+        globalTo(from, to, distance){
             // 特殊条件:被翻面时防御距离+1
             if(to.isTurnedOver()) return distance + 1;
         },
-        targetEnabled: function(card, player, target){
+        targetEnabled(card, player, target){
             // 特殊条件:目标体力值大于自己时不能指定
             if(target.hp > player.hp && get.tag(card, 'damage')){
                 return false;
             }
         },
-        ignoredHandcard: function(card, player){
+        ignoredHandcard(card, player){
             // 特殊条件:红色手牌不计入手牌上限
             if(get.color(card) == 'red'){
                 return true;
@@ -431,7 +424,7 @@ filter: function(event, player){
     // 显示提示
     mark: true,
     intro: {
-        content: function(storage, player){
+        content(storage, player){
             lib.skill.complex_mod.updateMod(player);
             let str = '当前效果:n';
             str += '攻击距离+' + storage.attackRange + 'n';

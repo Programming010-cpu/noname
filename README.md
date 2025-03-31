@@ -2,50 +2,51 @@
 
 欢迎来到无名杀扩展开发教程！本教程旨在帮助你学习如何制作无名杀扩展。无论你是完全的编程新手，还是有一定编程基础的开发者，都可以通过本教程学习制作扩展。
 
-## 如需增加额外内容，请于评论区进行说明！
-### 各个章节下滑到底部即可加载对应章节的评论区！
-#### 若未加载，可刷新页面重试。
-### 也可直接访问 [Github评论区](https://github.com/Antarctics/noname/discussions)
+## 教程勘误、答疑解惑、新增内容等要求请于评论区进行说明！
+- 各个章节下滑到底部即可加载对应章节的评论区！
+- 若未加载，可刷新页面重试。
+- 也可直接访问 [Github评论区](https://github.com/Antarctics/noname/discussions)
 
 ## 目录
 
-### [第一章：基础知识 | 🟩 Easy](./chapter1-basics.md)
+### [第一章：基础知识 | 🟩 Easy](basic.md)
 - 开发环境准备
 - JavaScript基础
-- 无名杀代码风格
-- 无名杀扩展结构
 
-### [第二章：角色制作 | 🟩 Easy](./chapter2-character.md)
+### [第二章：扩展结构 | 🟩 Easy](structure.md)
+- 无名杀扩展结构
+- 无名杀代码风格
+
+### [第三章：角色制作 | 🟩 Easy](character.md)
 - 角色系统格式
 - 参数实例演示
 
-### 第三章：技能开发 | 🟨 Medium
-- [3.1 技能系统](./chapter3-skill/3.1-skill-system.md)
-- [3.2 触发时机](./chapter3-skill/3.2-trigger.md)
-- [3.3 技能效果](./chapter3-skill/3.3-effect.md)
-- [3.4 技能标记](./chapter3-skill/3.4-mark.md)
-- [3.5 技能条件](./chapter3-skill/3.5-condition.md)
-- [3.6 技能动画](./chapter3-skill/3.6-animation.md)
-- [3.7 技能类型概述](./chapter3-skill/3.7-skill-types.md)
+### 第四章：技能开发 | 🟨 Medium
+- [4.1 技能系统](skill.md)
+- [4.2 触发时机](trigger.md)
+- [4.3 技能效果](effect.md)
+- [4.4 技能标记](mark.md)
+- [4.5 技能条件](condition.md)
+- [4.6 技能动画](animation.md)
+- [4.7 技能类型概述](skill-types.md)
 
-### [第四章：卡牌开发 | 🟩 Easy](./chapter4-card.md)
+### [第五章：卡牌开发 | 🟩 Easy](card.md)
 - 卡牌类型
 - 卡牌效果
 - 卡牌动画
 - 卡牌音效
 
-### 第五章：进阶开发 | 🟥 Hard
-- [5.1 AI设计](./chapter5-advanced/5.1-ai.md)
-- [5.2 联机适配](./chapter5-advanced/5.2-online.md)
-- [5.3 配音系统](./chapter5-advanced/5.3-audio.md)
-- [5.4 皮肤系统](./chapter5-advanced/5.4-skin.md)
-- [5.5 代码规范](./chapter5-advanced/5.5-code-standard.md)
+### 第六章：进阶开发 | 🟥 Hard
+- [6.1 AI设计](ai.md)
+- [6.2 联机适配](online.md)
+- [6.3 配音系统](audio.md)
+- [6.4 皮肤系统](skin.md)
+- [6.5 代码规范](code-standard.md)
   
 ### 附录
-- [A. API参考](./appendix/api.md)
-- [B. 常见问题](./appendix/faq.md)
-- [C. 共享手牌技能示例](./appendix/share-skill.md)
-- [D. 充能条技能示例](./appendix/enery-skill.md)
+- [A. API参考](appendix/api.md)
+- [B. 共享手牌技能示例](appendix/share-skill.md)
+- [C. 充能条技能示例](appendix/enery-skill.md)
 
 ### [无名杀GitHub仓库](https://github.com/libnoname/noname)
 

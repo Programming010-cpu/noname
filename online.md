@@ -1,4 +1,4 @@
-# 5.2 联机适配
+# 6.2 联机适配
 
 ## 1. 联机系统概述
 
@@ -9,46 +9,11 @@
 - 性能优化
 - 错误处理
 
-## 2. 基础配置
-```javascript
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
-game.import('extension', function(){
-    return {
-        name: "XXXX",
-        content: function (config, pack) { },
-        precontent: function () {
-            game.import('character', function () {
-                var xxxx = {
-                    name: 'XXXX',
-                    connect: true,                  // 开启联机支持
-                    character: { ...characters },
-                    skill: { ...skills },
-                    card: { ...cards },
-                    translate: { ...translates, },
-                };
-                return xxxx;
-            });
-        },
-        help: {},
-        config: {},
-        package: {
-            intro: "",
-            author: "",
-            diskURL: "",
-            forumURL: "",
-            version: "1.0",
-        },
-        files: {},
-    }
-});
-```
+## 2. 数据同步
 
-## 3. 数据同步
-
-### 3.1 基础同步
 ```javascript
 "sync_skill": {
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 同步玩家数据(联机模式下全局调用的数据均需同步)
         game.broadcastAll(function(player, num){
             player.storage.count = num;
@@ -66,13 +31,13 @@ game.import('extension', function(){
 ```
 
 
-## 4. 事件处理
+## 3. 事件处理
 
-### 4.1 事件同步
+### 3.1 事件同步
 ```javascript
 "event_skill": {
     trigger: {player: 'phaseBegin'},
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 创建同步事件
         var next = game.createEvent('customEvent');
         next.player = player;
@@ -87,10 +52,10 @@ game.import('extension', function(){
 }
 ```
 
-### 4.2 选择同步
+### 3.2 选择同步
 ```javascript
 "choice_skill": {
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 同步选择结果
         let result = await player.chooseControl('选项1', '选项2')
             .set('prompt', '请选择一个选项')
@@ -107,20 +72,6 @@ game.import('extension', function(){
 }
 ```
 
-
-## 5. 注意事项
-
-1. **同步处理**
-   - 减少同步次数
-   - 控制数据大小
-
-2. **资源管理**
-   - 合理加载资源
-   - 控制资源大小
-3. **性能优化**
-   - 减少广播次数
-   - 优化数据结构
-
 ## 练习
 
 1. 创建一个基础联机技能：
@@ -133,10 +84,10 @@ game.import('extension', function(){
 "online_skill": {
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择目标
         let result = await player.chooseTarget('选择一名角色')
             .set('ai', target => get.attitude(player, target))

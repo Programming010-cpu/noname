@@ -1,29 +1,159 @@
-# 3.1 技能系统
+# 4.1 技能系统
 
 ## 1. 技能基本结构
 
 技能是武将最核心的组成部分，一个完整的技能通常包含以下部分：
 
+<details>
+<summary>展开示例</summary>
+
 ```javascript
 "skill_name": {
-    // 基本属性
-    filter: function(event, player){}, // 发动条件
-    content: async function (event, trigger, player){}, // 技能效果
+    // 基础属性
+    /**
+     * 筛选条件
+	 * @param event 触发事件
+	 * @param player 持有角色
+     * @param name 触发事件名
+     * @param target 本次触发目标，需要有getIndex才可用
+     * @description
+     * 返回true时才可执行技能。
+     */
+    filter(event, player, name, target){},
+    /**
+     * 执行要求
+	 * @param event 技能事件
+     * @param trigger 触发事件
+	 * @param player 持有角色
+     * @description
+     * 技能满足筛选条件后触发。
+     * 此时不视为执行技能，可以用来做筛选。
+     * 如：张辽【突袭】请选择至多两名角色获得其手牌
+     * 若取消则不执行技能。
+     * event.result.bool为true时执行技能。
+     */
+    async cost(event, trigger, player){},
+     /**
+     * 技能效果
+	 * @param event 技能事件
+     * @param trigger 触发事件
+	 * @param player 持有角色
+     * @description
+     * 技能执行的效果
+     */
+    async content(event, trigger, player){}, // 技能效果
     
     // 可选属性
-    audio: 2,                    // 技能配音
-    trigger: {player: 'phaseBegin'}, // 触发时机(被动)
-    enable: "phaseUse",         // 使用时机(主动)
-    usable: 1,                  // 使用次数限制(回合)
-    round: 1,                   // 使用次数限制(每轮)
-    forced: true,               // 是否强制发动(启用后默认lock为true)
-    lock: true,                 // 是否锁定(视为锁定技)
-    charlotte: true,            // 是否为锁定技(不会被“化身”获取)
-    frequent: true,             // 是否自动发动
+    /**
+     * 初始化
+	 * @param player 持有角色
+	 * @param skill 当前技能名
+     * @description
+     * 获得技能时执行的事件
+     */
+    init(player, skill){},
+    /**
+     * 技能配音
+     * @param {string | number | boolean | [string, number]} 详情请查看 配音系统 章节
+     */
+    audio: 2,
+    /**
+     * 触发时机，类似被动技能，不能与 主动使用 同时存在。
+     * @param {object} 具体触发时机，详细参数请查看 触发时机 章节
+     */
+    trigger: {},
+    /**
+     * 主动使用，主动技，不能与 触发时机 同时存在
+     * @param {string | string[]} 使用时机
+     * @description
+     * 该方法所支持的参数类型：
+     * - `chooseCard` 参数：选牌时可用
+     * - `chooseToRespond` 参数：打出牌时可用
+     * - `chooseToUse` 参数：使用牌时可用
+     * - `phaseUse` 参数：出牌时可用
+     */
+    enable: "",
+    /**
+     * 每回合使用次数
+	 * @param skill 当前技能
+	 * @param player 持有角色
+     */
+    usable: ((skill: string, player: Player) => number) | number,
+    /**
+     * 每轮使用次数
+	 * @param {number} num 使用次数
+     */
+    round: 1,
+    /**
+     * 技能发动次数
+	 * @param event 当前事件
+	 * @param player 持有角色
+     * @param triggername 触发名称
+     * @description
+     * 返回的数组长度即为本次技能执行次数
+     * 第X次执行的目标为数组中的第X-1个元素。
+     */
+	getIndex: ((event, player, triggername)=>object[]),
+    /**
+     * 是否强制发动
+	 * @param {boolean} 强制发动
+     * @description
+     * 若为true，默认为锁定技。
+     * 需要将locked修改为false才可实现强制发动的非锁定技。
+     */
+    forced: true,
+    /**
+     * 是否锁定
+	 * @param {boolean} 锁定
+     * @description
+     * 能否被“非锁定技失效”封印
+     */
+    locked: true,
+    /**
+     * 自动确认
+	 * @param {boolean} 是否自动发动
+     * @description
+     * 可在游戏中自选是否自动，仅仅只是跳过询问这一流程。
+     */
+    frequent: true,
+    /**
+     * 衍生技
+	 * @param {string | string[]} 技能ID
+     * @description
+     * 在技能下面显示的对应技能的描述
+     */
+    derivation: [],
+    charlotte: true,            // 是否为锁定技
+    vanish: true,               // 一次性技能，使用resetSkills重置技能时直接移除此技能。
+    popup: false,               // 发动技能是否记录
+    nopop: true,                // 是否显示技能描述
+    direct: true,               // 是否强制发动技能且无记录
+    skillAnimation: true,       // 是否播放动画
+	animationColor: "gray",     // 动画文字颜色
+    sourceSkill: "XXX",         // 源技能，若存在，则当前技能实际id为"XXX_skill"
+    group: ['subskill1'],       // 关联子技能，持有此技能会同时视为持有子技能
+    logTarget: "target",        // 技能显示的目标
+    mark: "auto",               // 是否显示标记，同时也支持布尔值。
+    equipSkill: true,           // 是否为装备技能
+    prompt: "XXX",              // 发动技能提示
+    filterCard: {},             // 是否需要筛选卡牌
+    position: "h",               // 指定卡牌位置
+    filterTarget: (),           // 是否需要筛选目标
+    selectTarget: (),           // 需要选择的目标数
+    viewAs: {},                 // 视为使用卡牌
+    viewAsFilter: {},           // 视为使用条件
+    onuse: {},                  // 视为后执行的效果
+    onremove: {},               // 失去技能后执行的效果
+    intro: {},                  // 标记内容
+    check: {},                  // AI是否发动技能(被动技)
+    mod: {},                    // 属性修改(视为锁定技)
     ai: {},                     // AI策略
-                                // ....更多请查看后续教程或源码
+                                // ....更多选项请查看源码
 }
 ```
+
+</details>
+
 
 ## 2. 技能类型
 
@@ -35,14 +165,14 @@
 "my_skill": {
     enable: "phaseUse",         // 出牌阶段使用
     usable: 1,                  // 每回合限一次
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0; // 需要有手牌
     },
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){ // 此效果意为需要选择目标，返回值为数组，传参为event.targets。
         return target != player; // 不能选择自己
     },
-    content: async function (event, trigger, player){
-        await target.damage();   // 对目标造成伤害
+    async content(event, trigger, player){
+        await event.targets[0].damage();   // 对目标造成伤害
     }
 } // 出牌阶段限一次，你可以对一名其他角色造成1点伤害
 ```
@@ -54,11 +184,11 @@
         player: "phaseBegin",   // 回合开始时
         global: "damageEnd",    // 任何角色受到伤害后
     },
-    forced: true,               // 锁定技
-    filter: function(event, player){
+    forced: true,               // 强制使用
+    filter(event, player){
         return player.hp < 3;    // 体力值小于3时触发
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         await player.draw();     // 摸一张牌
     }
 } // 锁定技，你的回合开始时或任意角色受到伤害后，若你的体力值小于3，则你摸一张牌。
@@ -70,15 +200,15 @@
     enable: ["chooseToUse", "chooseToRespond"], // 可以使用或打出
     filterCard: {color: "red"}, // 红色牌
     viewAs: {name: "sha"},      // 视为【杀】
-    viewAsFilter: function(player){
+    viewAsFilter(player){ // 视为技条件
         return player.countCards('h', {color: 'red'}) > 0;
     }, // 需要有手牌
     prompt: "将一张红色牌当【杀】使用或打出",
     ai: {
         respondSha: true,       // 告诉AI，此技能可以用来响应杀
-        skillTagFilter: function(player){
+        skillTagFilter(player){
             return player.countCards('h', {color: 'red'}) > 0;
-        } // 有手牌时才告诉AI
+        } // 有红色的手牌时才告诉AI
     }
 } // 你可以将一张红色牌当【杀】使用或打出
 ```
@@ -88,10 +218,10 @@
 "lock_skill": {
     charlotte: true,              // 锁定技标记
     trigger: {player: 'damageBegin4'},
-    filter: function(event, player){
+    filter(event, player){
         return event.nature == 'fire'; // 火焰伤害
     },
-    content: function(){
+    content(){
         trigger.cancel();      // 取消事件
     }
 } // 锁定技，你防止即将受到的火焰伤害
@@ -105,11 +235,11 @@
     skillAnimation: true,      // 播放技能动画
     animationColor: "fire",    // 动画颜色
     enable: "phaseUse",        // 出牌阶段使用
-    filter: function(event, player){
+    filter(event, player){
         return !player.storage.limit_skill; // 未使用过
     },
-    content: async function (event, trigger, player){
-        player.awakenSkill('limit_skill');  // 标记技能已发动
+    async content(event, trigger, player){
+        player.awakenSkill('limit_skill');  // 废除此技能
         await player.draw(3);               // 摸三张牌
         await player.recover();             // 回复1点体力
     }
@@ -120,21 +250,27 @@
 
 ### 3.1 基础效果
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 摸牌
     await player.draw(2);
     
+    // 摸至
+    await player.drawTo(5);
+
     // 回复体力
     await player.recover();
+
+    // 回复至
+    await player.recoverTo(5)
     
-    // 造成伤害
+    // 受到伤害
     await target.damage('fire');
     
     // 失去体力
     await player.loseHp();
     
     // 获得牌
-    await player.gain(trigger.cards, 'gain2');
+    await player.gain(trigger.cards, 'gainAuto');
     
     // 弃置牌
     await player.discard(player.getCards('h'));
@@ -143,7 +279,7 @@ content: async function (event, trigger, player){
 
 ### 3.2 选择效果
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 选择角色
     let result = await player.chooseTarget('请选择一名角色', true).forResult();
     if(result.bool){
@@ -158,8 +294,7 @@ content: async function (event, trigger, player){
     }
     
     // 选择选项
-    let choice = await player
-        .chooseControl('选项1', '选项2')
+    let choice = await player.chooseControl('选项1', '选项2')
         .set('prompt', '请选择一个选项')
         .forResult();
     if(choice.control === '选项1'){
@@ -170,7 +305,7 @@ content: async function (event, trigger, player){
 
 ### 3.3 条件判断
 ```javascript
-content: async function (event, trigger, player){
+async content(event, trigger, player){
     // 体力值判断
     if(player.hp <= 2){
         await player.draw();
@@ -203,7 +338,7 @@ content: async function (event, trigger, player){
     intro: {
         content: "标记内容",  // 标记描述
     },
-    content: function(){
+    async content(event, trigger, player){
         player.addMark('mark_skill', 1);    // 添加标记
         // 或
         player.removeMark('mark_skill', 1); // 移除标记
@@ -214,16 +349,14 @@ content: async function (event, trigger, player){
 ### 4.2 存储标记
 ```javascript
 "storage_skill": {
-    init: function(player){
+    init(player){
         player.storage.storage_skill = 0; // 初始化存储值
     },
     mark: true,
     intro: {
-        content: function(storage){
-            return '当前值：' + storage;
-        }
+        content: "当前持有#个标记"
     },
-    content: function(){
+    async content(event, trigger, player){
         player.storage.storage_skill++;    // 增加存储值
         player.markSkill('storage_skill'); // 更新标记显示
     }
@@ -239,13 +372,13 @@ content: async function (event, trigger, player){
     subSkill: {
         "1": {
             trigger: {player: 'phaseBegin'},
-            content: function(){
+            async content(event, trigger, player){
                 player.draw();
             },
         },
         "2": {
             trigger: {player: 'phaseEnd'},
-            content: function(){
+            async content(event, trigger, player){
                 player.recover();
             },
         }
@@ -257,34 +390,25 @@ content: async function (event, trigger, player){
 ```javascript
 "skill_1": {
     trigger: {player: 'phaseBegin'},
-    content: function(){
+    async content(event, trigger, player){
         player.addTempSkill('skill_2'); // 获得临时技能
+        player.addTempSkill('skill_3',{ global: "roundStart" }); // 获得临时技能，持续到本轮结束
     }
 },
 "skill_2": {
     trigger: {player: 'damageEnd'},
-    content: function(){
+    async content(event, trigger, player){
         player.draw();
     }
 } // 回合开始时获得临时技能，受到伤害后摸一张牌
 ```
-
-## 6. 注意事项
-
-1. **技能命名规范**
-   - 避免与现有技能重名
-   - 子技能使用下划线连接
-
-2. **技能优化**
-   - 避免过多的循环判断
-   - 合理使用强制技能
-   - 减少不必要的动画效果
 
 ## 练习题
 
 1. 创建一个触发技能：
    - 回合开始时触发
    - 可以选择摸牌或回复体力
+
 <details>
 <summary>参考答案 | 🟩 Easy</summary>
 
@@ -292,13 +416,13 @@ content: async function (event, trigger, player){
 "trigger_example": {
     usable: 1,
     trigger: {player: 'phaseBegin'},
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 选择效果
         let choice = await player.chooseControl('摸两张牌', '回复1点体力')
             .set('prompt', '请选择一个效果')
-            .set('ai', function(){
-                if(player.hp <= 2) return '回复1点体力';
-                return '摸两张牌';
+            .set('ai', function(){ // AI策略
+                if(player.hp <= 2) return '回复1点体力'; // 血量较低时选择回血
+                return '摸两张牌'; // 否则选择摸牌
         }).forResult();
         // 执行效果
         if(choice.control == '摸两张牌'){
@@ -307,7 +431,7 @@ content: async function (event, trigger, player){
             await player.recover();
         }
     },
-} // 回合开始时,你可以选择:1.摸两张牌;2.回复1点体力。每回合限一次。
+} // 每回合限一次，回合开始时,你可以选择以下一项:1.摸两张牌;2.回复1点体力。
 ```
 </details>
 
@@ -315,6 +439,7 @@ content: async function (event, trigger, player){
    - 出牌阶段限一次
    - 弃置一张牌并指定一名角色
    - 目标角色受到1点伤害
+
 <details>
 <summary>参考答案 | 🟩 Easy</summary>
 
@@ -322,24 +447,24 @@ content: async function (event, trigger, player){
 "active_example": {
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return player.countCards('h') > 0;
     },
-    filterTarget: function(card, player, target){
+    filterTarget(card, player, target){
         return target != player;
     },
-    filterCard: true,
+    filterCard: true, // 持有此效果意为需要选择牌
     position: "h",
-    content: async function (event, trigger, player){
-        await target.damage();
+    async content(event, trigger, player){
+        await event.targets[0].damage();
     },
     ai: {
         order: 7,
         result: {
-            target: function(player, target){
-                let att = get.attitude(player, target)
-                if(target.hp == 1) return att * 2;
-                if(att < 0) return att;
+            target(player, target){ // AI选人逻辑，正数选队友，负数选敌方，0不选。
+                var att = get.attitude(player, target) // 持有人对目标的态度，负数为敌方，正数为友方。
+                if(target.hp == 1) att = att * 2;   // 若角色血量为1，则优先级更高
+                if(att < 0) return att; // 若为敌方，则使用技能。
             }
         },
         expose: 0.2
@@ -352,13 +477,14 @@ content: async function (event, trigger, player){
    - 包含触发和主动两部分
    - 使用技能标记系统
    - 实现技能联动
+
 <details>
 <summary>参考答案 | 🟨 Medium</summary>
 
 ```javascript
 "complex_example": {
     // 初始化标记
-    init: function(player){
+    init(player){
         player.setMark('complex_example', 0);
     },
     // 标记显示
@@ -369,17 +495,17 @@ content: async function (event, trigger, player){
     // 主动部分
     enable: "phaseUse",
     usable: 1,
-    filter: function(event, player){
+    filter(event, player){
         return player.countMark('complex_example') > 0;
     },
-    content: async function (event, trigger, player){
+    async content(event, trigger, player){
         // 消耗标记发动效果
         player.removeMark('complex_example', 1);
         
         // 选择目标造成伤害
-        let target = await player.chooseTarget('选择一名目标角色').forResult();
-        if(target.bool){
-            await target.targets[0].damage();
+        let result = await player.chooseTarget('选择一名目标角色').forResult();
+        if(result.bool){
+            await result.targets[0].damage();
         }
     },
     // 触发部分
@@ -389,7 +515,7 @@ content: async function (event, trigger, player){
         damage: {
             trigger: {player: 'damageEnd'},
             forced: true,
-            content: function(){
+            async content(event, trigger, player){
                 // 受到伤害获得标记
                 player.addMark('complex_example', trigger.num); // 获得标记
             },
@@ -397,11 +523,11 @@ content: async function (event, trigger, player){
     },
     // AI策略
     ai: {
-        order: 6,
+        order: 6, // 使用技能的优先级。
         result: {
             target: -1
         },
-        threaten: 1.5
+        threaten: 1.5 // 威胁度，AI会优先激活威胁度最高的角色。
     }
 } // 锁定技,当你受到伤害后,你获得相同个数的"示例"标记。出牌阶段限一次,你可以移去一个"示例"标记并对一名角色造成1点伤害。
 ```
